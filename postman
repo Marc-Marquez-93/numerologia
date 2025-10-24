@@ -1,0 +1,178 @@
+{
+	"info": {
+		"_postman_id": "368d3150-6253-4895-a8e0-3f55dcb72b0a",
+		"name": "API MySQL NodeJS",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "42345718",
+		"_collection_link": "https://apiteam-8717.postman.co/workspace/apiteam-Workspace~18e6137f-8e90-4aee-943c-0499880043bf/collection/42345718-368d3150-6253-4895-a8e0-3f55dcb72b0a?action=share&source=collection_link&creator=42345718"
+	},
+	"item": [
+		{
+			"name": "Usuarios",
+			"item": [
+				{
+					"name": "GET Todos los usuarios",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:3000/api/usuarios"
+					},
+					"response": []
+				},
+				{
+					"name": "GET Usuario por ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:3000/api/usuarios/1"
+					},
+					"response": []
+				},
+				{
+					"name": "POST Crear usuario",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nombre\": \"Juan Pérez\",\n  \"email\": \"juan@correo.com\",\n  \"password\": \"123456\"\n}"
+						},
+						"url": "http://localhost:3000/api/usuarios"
+					},
+					"response": []
+				},
+				{
+					"name": "PUT Actualizar usuario",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nombre\": \"Juan Actualizado\",\n  \"email\": \"juan@correo.com\",\n  \"password\": \"654321\"\n}"
+						},
+						"url": "http://localhost:3000/api/usuarios/1"
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE Eliminar usuario",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": "http://localhost:3000/api/usuarios/1"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Productos",
+			"item": [
+				{
+					"name": "GET Todos los productos",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:3000/api/productos"
+					},
+					"response": []
+				},
+				{
+					"name": "POST Crear producto",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nombre\": \"Camiseta\",\n  \"precio\": 50000,\n  \"stock\": 10\n}"
+						},
+						"url": "http://localhost:3000/api/productos"
+					},
+					"response": []
+				},
+				{
+					"name": "GET producto por id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:3000/api/productos/1"
+					},
+					"response": []
+				},
+				{
+					"name": "PUT modificar",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"nombre\": \"camisa\",\r\n    \"precio\": 120\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "http://localhost:3000/api/productos/1"
+					},
+					"response": []
+				},
+				{
+					"name": "Eliminar",
+					"request": {
+						"method": "DELETE",
+						"header": []
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Órdenes",
+			"item": [
+				{
+					"name": "GET Todas las órdenes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": "http://localhost:3000/api/ordenes"
+					},
+					"response": []
+				},
+				{
+					"name": "POST Crear orden",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"usuario_id\": 1,\n  \"producto_id\": 2,\n  \"cantidad\": 3\n}"
+						},
+						"url": "http://localhost:3000/api/ordenes"
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

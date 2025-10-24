@@ -1,0 +1,172 @@
+{
+  "info": {
+    "_postman_id": "b7f6a7a2-2d5b-4d4b-b8d9-3fbcf8b4b91e",
+    "name": "API MySQL NodeJS",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "chatgpt"
+  },
+  "item": [
+    {
+      "name": "Usuarios",
+      "item": [
+        {
+          "name": "GET Todos los usuarios",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/usuarios",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "usuarios"]
+            }
+          }
+        },
+        {
+          "name": "GET Usuario por ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3000/api/usuarios/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "usuarios", "1"]
+            }
+          }
+        },
+        {
+          "name": "POST Crear usuario",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Juan Pérez\",\n  \"email\": \"juan@correo.com\",\n  \"password\": \"123456\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/usuarios",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "usuarios"]
+            }
+          }
+        },
+        {
+          "name": "PUT Actualizar usuario",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Juan Actualizado\",\n  \"email\": \"juan@correo.com\",\n  \"password\": \"654321\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/usuarios/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "usuarios", "1"]
+            }
+          }
+        },
+        {
+          "name": "DELETE Eliminar usuario",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "http://localhost:3000/api/usuarios/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "usuarios", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Productos",
+      "item": [
+        {
+          "name": "GET Todos los productos",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:3000/api/productos",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "productos"]
+            }
+          }
+        },
+        {
+          "name": "POST Crear producto",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Camiseta\",\n  \"precio\": 50000,\n  \"stock\": 10\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/productos",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "productos"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Órdenes",
+      "item": [
+        {
+          "name": "GET Todas las órdenes",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost:3000/api/ordenes",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "ordenes"]
+            }
+          }
+        },
+        {
+          "name": "POST Crear orden",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuario_id\": 1,\n  \"producto_id\": 2,\n  \"cantidad\": 3\n}"
+            },
+            "url": {
+              "raw": "http://localhost:3000/api/ordenes",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "3000",
+              "path": ["api", "ordenes"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
