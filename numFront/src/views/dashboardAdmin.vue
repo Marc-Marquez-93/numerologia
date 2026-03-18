@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUsuarioStore } from '../stores/Usuario.js';
 import { useAuthStore } from '../stores/Auth.js';
@@ -13,9 +13,25 @@ const authStore = useAuthStore();
 const $q = useQuasar();
 const { error } = useNotifications();
 
-const usuarios = ref([]);
+const todosUsuarios = ref([]);
 const cargando = ref(true);
 const filtro = ref('');
+const rolSeleccionado = ref('user');
+
+// Filtrado por rol
+const usuarios = computed(() => {
+    return todosUsuarios.value.filter(u => {
+        if (rolSeleccionado.value === 'user') {
+            return u.rol !== 'admin' && u.rol !== 1;
+        } else {
+            return u.rol === 'admin' || u.rol === 1;
+        }
+    });
+});
+
+const tituloTabla = computed(() => {
+    return rolSeleccionado.value === 'user' ? 'Usuarios Registrados' : 'Administradores';
+});
 
 // Definición de las columnas de Quasar Table
 const columnas = [
@@ -40,7 +56,6 @@ const cargarDataAdministrativa = async () => {
         // 1. Cargar todos los usuarios (Requiere token en headers, lo hace axiosInstance automáticamente)
         const resUsuarios = await axiosInstance.get('/usuario');
         let usuariosData = resUsuarios.data.usuarios || [];
-        usuariosData = usuariosData.filter(u => u.rol !== 'admin' && u.rol !== 1); // Solo usuarios normales
 
         // 2. Cargar todos los pagos para cruzarlos
         const resPagos = await axiosInstance.get('/pago');
@@ -49,13 +64,11 @@ const cargarDataAdministrativa = async () => {
         const ahora = new Date();
 
         // 3. Cruzar info: Map para saber el estado de cada usuario
-        usuarios.value = usuariosData.map(user => {
-            // Buscamos el último pago de este usuario especifico
+        todosUsuarios.value = usuariosData.map(user => {
             const pagosUsuario = pagosData.filter(p => p.usuario_email === user.email);
             let estadoSuscripcion = 'Sin Pagos';
 
             if (pagosUsuario.length > 0) {
-                // Ordenamos del más reciente al más antiguo
                 pagosUsuario.sort((a, b) => new Date(b.fecha_pago) - new Date(a.fecha_pago));
                 const ultimoPago = pagosUsuario[0];
 
@@ -150,11 +163,27 @@ const eliminarUsuarioAdmin = (row) => {
         <q-btn @click="volverInicio" round color="white" text-color="moss" icon="close" class="shadow-soft hover-scale" />
     </div>
 
+    <!-- Toggle Usuarios / Admins -->
+    <div class="full-width max-width q-mb-lg flex justify-center">
+        <q-btn-toggle
+            v-model="rolSeleccionado"
+            toggle-color="primary"
+            text-color="moss"
+            rounded unelevated
+            class="shadow-soft"
+            style="background: white;"
+            :options="[
+                { label: 'Usuarios', value: 'user', icon: 'people' },
+                { label: 'Administradores', value: 'admin', icon: 'admin_panel_settings' }
+            ]"
+        />
+    </div>
+
     <!-- Main Content -->
     <div class="full-width max-width q-px-sm">
         <q-card class="admin-card glass-card shadow-soft border-radius-xl" flat>
             <q-table
-                title="Usuarios Registrados"
+                :title="tituloTabla"
                 :rows="usuarios"
                 :columns="columnas"
                 row-key="_id"

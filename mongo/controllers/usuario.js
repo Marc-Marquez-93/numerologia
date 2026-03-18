@@ -190,7 +190,7 @@ const getUsuario = async (req, res) => {
 
 const getAll = async (req, res) => {
   try {
-    const usuarios = await Usuario.find({}, "nombre fecha_nacimiento email estado");
+    const usuarios = await Usuario.find({}, "nombre fecha_nacimiento email estado rol");
     res.json({ usuarios });
   } catch (error) {
     res.status(400).json({ error });
