@@ -156,11 +156,20 @@ const eliminarUsuarioAdmin = (row) => {
             <q-avatar color="primary" text-color="dark" icon="admin_panel_settings" size="50px" class="shadow-soft" />
             <div>
                 <h1 class="text-h4 text-weight-bold text-moss q-ma-none" style="line-height: 1;">Panel de Control</h1>
-                <span class="text-caption text-earth opacity-8 text-uppercase tracking-widest text-weight-bold">Acceso Restringido</span>
+                <div class="row items-center q-gutter-x-xs">
+                  <span class="text-caption text-earth opacity-8 text-uppercase tracking-widest text-weight-bold">Administrador:</span>
+                  <span class="text-caption text-moss text-weight-bolder text-uppercase">{{ usuarioStore.nombre }}</span>
+                </div>
             </div>
         </div>
         
-        <q-btn @click="volverInicio" round color="white" text-color="moss" icon="close" class="shadow-soft hover-scale" />
+        <div class="row items-center q-gutter-x-md">
+            <!-- Avatar del Admin -->
+            <q-avatar color="primary" text-color="white" size="40px" class="shadow-soft border-moss">
+              {{ usuarioStore.nombre ? usuarioStore.nombre.charAt(0).toUpperCase() : 'A' }}
+            </q-avatar>
+            <q-btn @click="volverInicio" round color="white" text-color="moss" icon="close" class="shadow-soft hover-scale" />
+        </div>
     </div>
 
     <!-- Toggle Usuarios / Admins -->

@@ -69,19 +69,19 @@ const volverInicio = () => {
             <div class="q-mb-md">
                 <q-icon name="admin_panel_settings" color="primary-glow" size="4rem" class="icon-glow" />
             </div>
-            <h2 class="text-h4 text-weight-bold text-white q-ma-none font-cyber">Numerology<span class="text-primary-glow">Admin</span></h2>
-            <p class="text-caption text-grey-5 tracking-widest text-uppercase q-mt-sm font-cyber">Secure Access Portal</p>
+            <h2 class="text-h4 text-weight-bold text-white q-ma-none font-cyber">ALMA BELLA <span class="text-primary-glow">Admin</span></h2>
+            <p class="text-caption text-grey-5 tracking-widest text-uppercase q-mt-sm font-cyber">Portal de Acceso Seguro</p>
         </q-card-section>
 
         <q-card-section class="q-px-xl q-pb-xl">
             <q-form @submit.prevent="loginAdministrador" class="q-gutter-y-lg">
                 
                 <div>
-                    <div class="text-caption text-weight-bold text-uppercase text-grey-5 q-mb-xs font-cyber" style="letter-spacing: 1px;">Admin Email</div>
+                    <div class="text-caption text-weight-bold text-uppercase text-grey-5 q-mb-xs font-cyber" style="letter-spacing: 1px;">Correo del Administrador</div>
                     <q-input 
                         v-model="form.email" 
                         type="email"
-                        placeholder="admin@earthnumerology.com" 
+                        placeholder="admin@almabella.com" 
                         dark 
                         outlined 
                         dense 
@@ -94,7 +94,7 @@ const volverInicio = () => {
                 </div>
 
                 <div>
-                    <div class="text-caption text-weight-bold text-uppercase text-grey-5 q-mb-xs font-cyber" style="letter-spacing: 1px;">Security Key / Password</div>
+                    <div class="text-caption text-weight-bold text-uppercase text-grey-5 q-mb-xs font-cyber" style="letter-spacing: 1px;">Clave de Seguridad / Contraseña</div>
                     <q-input 
                         v-model="form.password" 
                         :type="mostrarPassword ? 'text' : 'password'"
@@ -123,14 +123,14 @@ const volverInicio = () => {
                 <div class="bg-dark-alert q-pa-md border-radius-sm row items-center q-gutter-x-sm border-left-glow q-mt-lg">
                     <q-icon name="security" color="primary-glow" size="xs" />
                     <div class="text-caption text-grey-4" style="line-height: 1.2;">
-                        End-to-end encryption enabled. Your connection is strictly monitored.
+                        Cifrado de extremo a extremo activado. Su conexión es monitoreada estrictamente.
                     </div>
                 </div>
 
                 <q-btn 
                     type="submit" 
                     :loading="cargando"
-                    label="Authorize Access" 
+                    label="Autorizar Acceso" 
                     icon-right="arrow_forward" 
                     class="full-width q-py-sm font-cyber text-weight-bold btn-authorize q-mt-lg" 
                     text-color="dark" 
@@ -139,7 +139,7 @@ const volverInicio = () => {
             </q-form>
 
             <div class="text-center q-mt-xl text-caption font-cyber text-grey-6">
-                New authorized personnel? <span @click="irARegistro" class="text-primary-glow cursor-pointer hover-glow-text" style="text-decoration: underline;">Request terminal access</span>
+                ¿Nuevo personal autorizado? <span @click="irARegistro" class="text-primary-glow cursor-pointer hover-glow-text" style="text-decoration: underline;">Solicitar acceso a la terminal</span>
             </div>
         </q-card-section>
     </q-card>

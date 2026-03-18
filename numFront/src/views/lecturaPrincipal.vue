@@ -61,7 +61,7 @@ const volverInicio = () => {
     <nav class="fixed-top full-width q-pa-md flex justify-between items-center z-top bg-transparent">
       <div class="row items-center q-gutter-sm cursor-pointer" @click="volverInicio">
         <q-avatar color="primary" text-color="white" icon="auto_awesome" size="32px" class="shadow-3" />
-        <span class="text-weight-bold text-moss tracking-tight text-subtitle1">BEAUTY SOUL</span>
+        <span class="text-weight-bold text-moss tracking-tight text-subtitle1">ALMA BELLA</span>
       </div>
     </nav>
 

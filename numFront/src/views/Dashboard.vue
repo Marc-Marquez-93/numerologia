@@ -61,12 +61,24 @@ const eliminarUsuario = () => {
     <nav class="fixed-top full-width q-pa-md flex justify-between items-center z-top bg-forest-dark custom-nav shadow-3">
       <div class="row items-center q-gutter-sm cursor-pointer" @click="volverInicio">
         <q-avatar color="primary" text-color="white" icon="auto_awesome" size="32px" class="shadow-3" />
-        <span class="text-weight-bold tracking-tight text-subtitle1" style="color: white;">BEAUTY SOUL</span>
+        <span class="text-weight-bold tracking-tight text-subtitle1" style="color: white;">ALMA BELLA</span>
       </div>
-      <div class="row items-center q-gutter-x-sm">
-        <q-btn flat round color="negative" icon="delete_forever" @click="eliminarUsuario" title="Eliminar cuenta" />
-        <q-btn flat round color="white" icon="home" @click="volverInicio" title="Inicio" />
-        <q-btn flat round color="white" icon="logout" @click="cerrarSesion" title="Cerrar sesión" />
+      <div class="row items-center q-gutter-x-md">
+        <!-- Avatar y Nombre del Usuario -->
+        <div class="row items-center q-gutter-x-sm q-hide-xs">
+          <span class="text-white text-weight-medium">{{ usuarioStore.nombre }}</span>
+          <q-avatar color="primary" text-color="white" size="34px" class="shadow-2">
+            {{ usuarioStore.nombre ? usuarioStore.nombre.charAt(0).toUpperCase() : 'U' }}
+          </q-avatar>
+        </div>
+
+        <div class="row items-center q-gutter-x-xs">
+          <q-btn flat round color="negative" icon="delete_forever" @click="eliminarUsuario" title="Eliminar cuenta">
+            <q-tooltip>Eliminar cuenta definitivamente</q-tooltip>
+          </q-btn>
+          <q-btn flat round color="white" icon="home" @click="volverInicio" title="Inicio" />
+          <q-btn flat round color="white" icon="logout" @click="cerrarSesion" title="Cerrar sesión" />
+        </div>
       </div>
     </nav>
 

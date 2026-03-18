@@ -42,6 +42,7 @@ async function iniciarSesion() {
             authStore.token = resLogin.token;
         }
         usuarioStore.email = resLogin.usuario.email;
+        usuarioStore.nombre = resLogin.usuario.nombre;
 
         // 4. Verificamos el estado del pago
         const emailUsuario = usuarioStore.email;
@@ -112,7 +113,7 @@ async function iniciarSesion() {
                 <div class="row items-center q-mb-xl cursor-pointer" @click="router.push('/')">
                     <q-avatar color="primary" text-color="dark" icon="auto_awesome" size="32px"
                         class="q-mr-sm shadow-3" />
-                    <span class="text-h6 text-weight-bold text-uppercase text-dark tracking-widest">BEAUTY SOUL</span>
+                    <span class="text-h6 text-weight-bold text-uppercase text-dark tracking-widest">ALMA BELLA</span>
                 </div>
 
                 <div class="q-mb-lg">
