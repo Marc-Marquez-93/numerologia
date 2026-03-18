@@ -25,7 +25,7 @@ app.use("/api/pago",pagoRoute)
 // Serve Frontend Static Files
 app.use(express.static(path.join(__dirname, "../numFront/dist")));
 
-app.get("*", (req, res) => {
+app.get("(.*)", (req, res) => {
     res.sendFile(path.join(__dirname, "../numFront/dist/index.html"));
 });
 
