@@ -3,11 +3,13 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
 import { useUsuarioStore } from '../stores/Usuario.js';
+import { useAuthStore } from '../stores/Auth.js';
 import axiosInstance from '../plugins/axios.js';
 
 const router = useRouter();
 const $q = useQuasar();
 const usuarioStore = useUsuarioStore();
+const authStore = useAuthStore();
 const tab = ref(router.currentRoute.value.path.includes('diaria') ? 'diaria' : 'principal');
 
 const navigateTo = (route) => {
@@ -23,8 +25,9 @@ const volverInicio = () => {
 };
 
 const cerrarSesion = () => {
-    // Aquí puedes limpiar las stores si lo deseas
+    // Limpiamos ambas stores y redirigimos a login
     usuarioStore.$reset();
+    authStore.token = '';
     router.push("/login");
 };
 

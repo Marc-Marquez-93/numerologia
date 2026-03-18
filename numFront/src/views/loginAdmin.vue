@@ -4,11 +4,13 @@ import { useRouter } from 'vue-router';
 import { postData } from '../services/apiCliente.js';
 import { useNotifications } from '../composables/useNotify.js';
 import { useUsuarioStore } from '../stores/Usuario.js';
+import { useAuthStore } from '../stores/Auth.js';
 import axiosInstance from '../plugins/axios.js';
 
 const router = useRouter();
 const { error, success } = useNotifications();
 const usuarioStore = useUsuarioStore();
+const authStore = useAuthStore();
 
 const form = ref({
     email: '',
@@ -30,12 +32,11 @@ const loginAdministrador = async () => {
             return error("Acceso Denegado", "Esta cuenta no tiene privilegios de administrador.");
         }
 
-        usuarioStore.token = res.token;
+        // Guardamos el token en authStore (que es el que usa axiosInstance)
+        authStore.token = res.token;
         usuarioStore.email = res.usuario.email;
         usuarioStore.nombre = res.usuario.nombre;
         
-        axiosInstance.defaults.headers.common['x-token'] = res.token;
-
         success("Acceso Concedido", "Bienvenido al portal administrativo.");
         router.push('/dashboardAdmin');
 
