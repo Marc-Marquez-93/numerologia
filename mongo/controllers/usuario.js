@@ -295,9 +295,11 @@ const putUsuario = async (req, res) => {
       usuarioExistente._id,
       {
         nombre,
-        password: passwordFinal, // Usamos la variable controlada
+        password: passwordFinal,
         fecha_nacimiento,
         email: email_nuevo || email,
+        rol: req.body.rol, // Agregado para edición completa
+        estado: req.body.estado // Agregado para edición completa
       },
       { new: true }
     );

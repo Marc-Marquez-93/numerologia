@@ -21,6 +21,7 @@ const form = ref({
 
 const qDateProxy = ref(null);
 const mostrarPassword = ref(false);
+const cargando = ref(false);
 
 const iconos = [
   { icon: "self_improvement", label: "Espiritual" },
@@ -64,8 +65,8 @@ async function registrarUsuario() {
     return error("Dato incorrecto", errorFecha);
   }
 
-//postData
   try {
+    cargando.value = true;
     const payload = {
       ...form.value,
       rol: 0,
@@ -92,6 +93,8 @@ async function registrarUsuario() {
       const mensajeError = err.response?.data?.message || err.response?.data?.msg || "No se pudo completar el registro.";
       error("Error", mensajeError);
     }
+  } finally {
+    cargando.value = false;
   }
 }
 </script>
@@ -307,6 +310,7 @@ async function registrarUsuario() {
 
             <q-btn
               type="submit"
+              :loading="cargando"
               label="Descubrir mi Propósito"
               icon-right="spa"
               color="primary"

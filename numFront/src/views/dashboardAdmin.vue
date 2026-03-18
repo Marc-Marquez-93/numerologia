@@ -145,6 +145,66 @@ const eliminarUsuarioAdmin = (row) => {
         }
     });
 };
+
+// --- EDICIÓN DE USUARIO ---
+const mostrarModalEditar = ref(false);
+const cargandoEdicion = ref(false);
+const usuarioEditar = ref({
+    _id: '',
+    nombre: '',
+    email: '',
+    rol: '',
+    estado: 1,
+    fecha_nacimiento: ''
+});
+
+const abrirModalEditar = (row) => {
+    // Clonamos para no editar directamente en la tabla antes de guardar
+    usuarioEditar.value = { 
+        ...row,
+        // Aseguramos que la fecha esté en formato YYYY-MM-DD para el input tipo date
+        fecha_nacimiento: row.fecha_nacimiento ? new Date(row.fecha_nacimiento).toISOString().split('T')[0] : ''
+    };
+    mostrarModalEditar.value = true;
+};
+
+const guardarCambiosUsuario = async () => {
+    if (!usuarioEditar.value.nombre || !usuarioEditar.value.email) {
+        return $q.notify({ type: 'warning', message: 'Nombre y Correo son obligatorios' });
+    }
+
+    try {
+        cargandoEdicion.value = true;
+        
+        // Usamos el email original para la ruta (está en row._email o similar si lo guardamos, o simplemente usamos el ID si el backend lo permite)
+        // Pero el backend usa /usuario/:email. 
+        // Nota: Si el admin cambia el email, el putUsuario del backend maneja 'email' como parámetro y 'email_nuevo' en el body.
+        
+        const payload = {
+            nombre: usuarioEditar.value.nombre,
+            email_nuevo: usuarioEditar.value.email,
+            rol: usuarioEditar.value.rol,
+            estado: usuarioEditar.value.estado,
+            fecha_nacimiento: usuarioEditar.value.fecha_nacimiento
+        };
+
+        // Buscamos el email original en la lista original por el _id
+        const userOriginal = todosUsuarios.value.find(u => u._id === usuarioEditar.value._id);
+        const emailOriginal = userOriginal.email;
+
+        await axiosInstance.put(`/usuario/${emailOriginal}`, payload);
+        
+        $q.notify({ type: 'positive', message: 'Usuario actualizado correctamente' });
+        mostrarModalEditar.value = false;
+        await cargarDataAdministrativa();
+    } catch (err) {
+        console.error(err);
+        const msg = err.response?.data?.msg || 'Error al actualizar usuario';
+        $q.notify({ type: 'negative', message: msg });
+    } finally {
+        cargandoEdicion.value = false;
+    }
+};
 </script>
 
 <template>
@@ -244,6 +304,13 @@ const eliminarUsuarioAdmin = (row) => {
                 <!-- Columna de Acciones -->
                 <template v-slot:body-cell-acciones="props">
                     <q-td :props="props" class="q-gutter-x-sm">
+                        <!-- Botón Editar -->
+                        <q-btn round flat dense 
+                            color="primary" 
+                            icon="edit" 
+                            title="Editar usuario"
+                            @click="abrirModalEditar(props.row)"
+                        />
                         <!-- Botón Activar / Inactivar -->
                         <q-btn round flat dense 
                             :color="props.row.estado === 1 ? 'warning' : 'positive'" 
@@ -268,6 +335,75 @@ const eliminarUsuarioAdmin = (row) => {
             </q-table>
         </q-card>
     </div>
+
+    <!-- MODAL EDITAR USUARIO -->
+    <q-dialog v-model="mostrarModalEditar" persistent>
+        <q-card style="min-width: 400px; border-radius: 20px;" class="q-pa-md">
+            <q-card-section class="row items-center q-pb-none">
+                <div class="text-h6 text-moss text-weight-bold">Editar Usuario</div>
+                <q-space />
+                <q-btn icon="close" flat round dense v-close-popup />
+            </q-card-section>
+
+            <q-card-section class="q-pt-md q-gutter-y-md">
+                <div>
+                    <div class="text-caption text-weight-bold text-moss q-mb-xs">Nombre Completo</div>
+                    <q-input v-model="usuarioEditar.nombre" outlined dense color="primary" rounded />
+                </div>
+
+                <div>
+                    <div class="text-caption text-weight-bold text-moss q-mb-xs">Correo Electrónico</div>
+                    <q-input v-model="usuarioEditar.email" type="email" outlined dense color="primary" rounded />
+                </div>
+
+                <div class="row q-col-gutter-sm">
+                    <div class="col-6">
+                        <div class="text-caption text-weight-bold text-moss q-mb-xs">Rol</div>
+                        <q-select 
+                            v-model="usuarioEditar.rol" 
+                            :options="['user', 'admin']" 
+                            outlined dense color="primary" rounded
+                            emit-value
+                            map-options
+                        />
+                    </div>
+                    <div class="col-6">
+                        <div class="text-caption text-weight-bold text-moss q-mb-xs">Fecha Nacimiento</div>
+                        <q-input v-model="usuarioEditar.fecha_nacimiento" type="date" outlined dense color="primary" rounded />
+                    </div>
+                </div>
+
+                <div>
+                    <div class="text-caption text-weight-bold text-moss q-mb-xs">Estado de la Cuenta</div>
+                    <q-btn-toggle
+                        v-model="usuarioEditar.estado"
+                        toggle-color="primary"
+                        text-color="moss"
+                        rounded unelevated
+                        spread
+                        :options="[
+                            { label: 'Activo', value: 1 },
+                            { label: 'Inactivo', value: 0 }
+                        ]"
+                        class="border-moss shadow-soft"
+                    />
+                </div>
+            </q-card-section>
+
+            <q-card-actions align="right" class="q-pt-lg">
+                <q-btn flat label="Cancelar" color="grey-7" v-close-popup rounded no-caps />
+                <q-btn 
+                    label="Guardar Cambios" 
+                    color="primary" 
+                    text-color="dark" 
+                    @click="guardarCambiosUsuario" 
+                    :loading="cargandoEdicion"
+                    rounded unelevated no-caps
+                    class="q-px-lg shadow-soft text-weight-bold"
+                />
+            </q-card-actions>
+        </q-card>
+    </q-dialog>
 
   </div>
 </template>
