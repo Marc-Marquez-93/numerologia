@@ -26,7 +26,6 @@ const obtenerLecturaPrincipal = async () => {
             contenidoIA.value = "Parece que aún no tienes una lectura principal generada.";
         }
     } catch(err) {
-        console.log("Error al recuperar lectura principal:", err);
         error('Aviso', 'Error al sincronizar tu lectura principal.');
     } finally {
         cargando.value = false;

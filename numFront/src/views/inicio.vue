@@ -73,17 +73,12 @@ async function registrarUsuario() {
     };
 
     const res = await postData("/usuario", payload);
-    console.log(res);
-
-
     usuarioStore.email = res.usuario.email;
 
     success("¡Registro exitoso!", "Preparando tu lectura numerológica...");
     router.push("/lecturaPrincipal");
 
   } catch (err) {
-    console.log(err);
-    
     if (err.response?.data?.errors && err.response.data.errors.length > 0) {
 
       const primerErrorBackend = err.response.data.errors[0].msg;

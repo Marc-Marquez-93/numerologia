@@ -76,7 +76,6 @@ const solicitarCodigo = async () => {
     paso.value = 2; // Cambiamos a la vista de poner el código
 
   } catch (err) {
-    console.log(err);
     const msg = err.response?.data?.msg || err.response?.data?.message || "Error al solicitar recuperación.";
     error("No se pudo enviar", msg);
   } finally {
@@ -118,7 +117,6 @@ const restablecerPass = async () => {
     router.push("/login");
 
   } catch (err) {
-    console.log(err);
     
     // Prioridad 1: Errores de validación (express-validator / Error 400)
     if (err.response?.data?.errors && err.response.data.errors.length > 0) {

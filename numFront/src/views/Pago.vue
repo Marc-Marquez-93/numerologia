@@ -35,7 +35,6 @@ const procesarPago = async () => {
         router.push('/login');
         
     } catch(err) {
-        console.log(err);
         const msj = err.response?.data?.msg || "Hubo un error al procesar tu pago.";
         error("Error de pago", msj);
     } finally {

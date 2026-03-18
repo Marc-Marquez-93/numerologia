@@ -20,21 +20,16 @@ const obtenerLecturas = async () => {
     try {
         const res = await axiosInstance.get(`/lectura/usuario/${usuarioStore.email}`);
         const lecturasData = res.data.lecturas || [];
-        
-        console.log("👉 Toda la info enviada por res.data:", res.data);
-        console.log("👉 Array extraído lecturasData:", lecturasData);
 
         let diariasReves = lecturasData
             .filter(l => l.tipo === 1)
             .sort((a,b) => new Date(b.fecha_lectura || b.createdAt) - new Date(a.fecha_lectura || a.createdAt));
 
-        console.log("👉 Array filtrado (solo tipo 1) y ordenado:", diariasReves);
-
         // Limitamos a mostrar solo las 3 más recientes como se indicó
         lecturas.value = diariasReves.slice(0, 3);
 
     } catch(err) {
-        console.log("Error al recuperar lecturas:", err);
+        // Error silenciado - el usuario ve un estado vacío
     }
 }
 
@@ -47,7 +42,7 @@ const verificarEstado = async () => {
             await obtenerLecturas();
         }
     } catch(err) {
-        console.log("Error al verificar pago:", err);
+        // Error silenciado - se asume inactivo
         estadoPago.value = 'inactivo';
     } finally {
         cargando.value = false;

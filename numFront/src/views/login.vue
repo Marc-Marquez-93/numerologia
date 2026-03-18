@@ -69,18 +69,14 @@ async function iniciarSesion() {
                 });
 
                 if (!tieneLecturaHoy) {
-                    console.log("No hay lectura para hoy. Forzando generación auxiliar en login...");
                     await postData(`/lectura/diaria/${emailUsuario}`, {});
-                    console.log("Generación exitosa.");
-                } else {
-                    console.log("La lectura diaria de hoy ya existe, saltando generación.");
                 }
             } catch (errorAuxiliar) {
                  // El backend aborta con 400 si ya existe
                 if (errorAuxiliar.response?.status === 400 && errorAuxiliar.response?.data?.msg?.includes("Ya tienes")) {
-                     console.log("Backend bloqueó duplicado exitosamente.");
+                     // Duplicado prevenido por backend, flujo normal
                 } else {
-                     console.error("Fallo inesperado al asegurar la lectura diaria en login:", errorAuxiliar);
+                     // Fallo no crítico, la lectura se generará vía cron
                 }
             }
         }
@@ -92,7 +88,7 @@ async function iniciarSesion() {
         router.push("/dashboard");
 
     } catch (err) {
-        console.log(err);
+
         const mensajeError = err.response?.data?.msg || err.response?.data?.message || "Credenciales incorrectas o error en el servidor.";
         error("Error al iniciar sesión", mensajeError);
     } finally {

@@ -38,7 +38,6 @@ const generarLectura = async () => {
     lecturaGenerada.value = true;
 
   } catch (err) {
-    console.log(err);
     const mensajeError = err.response?.data?.msg || 'Las estrellas están nubladas. Intenta más tarde.';
     error('Aviso', mensajeError);
   } finally {
@@ -47,7 +46,6 @@ const generarLectura = async () => {
 };
 
 const activarMensajeDiario = async () => {
-  console.log("Botón de mensaje diario presionado");
   router.push('/login');
 };
 
