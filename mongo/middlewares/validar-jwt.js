@@ -10,6 +10,20 @@ const validarJWT = async (req, res, next) => {
     });
   }
 
+  // --- BYPASS PARA EL CRON JOB ---
+  if (process.env.CRON_SECRET_TOKEN && token === process.env.CRON_SECRET_TOKEN) {
+    // Es el robot del Cron, lo dejamos pasar asignándole un usuario "falso" de sistema
+    req.usuario = {
+      _id: 'cron_system',
+      nombre: 'Sistema Automatizado',
+      email: 'cron@sistema.local',
+      rol: 'admin',
+      estado: 1
+    };
+    return next();
+  }
+  // -------------------------------
+
   try {
     const { uid } = jwt.verify(token, process.env.SECRETORPRIVATEKEY);
 

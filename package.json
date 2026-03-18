@@ -4,7 +4,8 @@
   "description": "Root configuration for Render deployment",
   "scripts": {
     "postinstall": "cd numFront && npm install && npm run build && cd ../mongo && npm install",
-    "start": "cd mongo && node app.js"
+    "start": "cd mongo && node app.js",
+    "start:cron": "cd mongo && node cron-runner.js"
   },
   "engines": {
     "node": ">=18.0.0"
