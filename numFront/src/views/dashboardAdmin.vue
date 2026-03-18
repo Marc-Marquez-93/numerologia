@@ -2,12 +2,14 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUsuarioStore } from '../stores/Usuario.js';
+import { useAuthStore } from '../stores/Auth.js';
 import { useQuasar } from 'quasar';
 import axiosInstance from "../plugins/axios.js";
 import { useNotifications } from '../composables/useNotify.js';
 
 const router = useRouter();
 const usuarioStore = useUsuarioStore();
+const authStore = useAuthStore();
 const $q = useQuasar();
 const { error } = useNotifications();
 
@@ -85,8 +87,8 @@ const cargarDataAdministrativa = async () => {
 
 onMounted(() => {
     // Protección rudimentaria de ruta (el backend de todos modos frena si no hay token valido)
-    if (!usuarioStore.token) {
-        router.push('/login');
+    if (!authStore.token) {
+        router.push('/loginAdmin');
         return;
     }
     cargarDataAdministrativa();
