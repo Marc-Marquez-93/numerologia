@@ -3,7 +3,7 @@ import { useAuthStore } from '../stores/Auth.js'; // Asegúrate de que este es e
 
 const axiosInstance = axios.create({
   // baseURL: 'http://localhost:4500/api',
-  baseURL: 'https://mongo-1m7x.onrender.com/api',
+  baseURL: '/api',
   headers: {
     'Content-Type': 'application/json'
   }
