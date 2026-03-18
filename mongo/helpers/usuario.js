@@ -23,13 +23,23 @@ export const rolValido = (value) => {
 };
 
 export const enviarCorreo = async function enviarCorreo(to, subject, body) {
+    // Si no hay credenciales, ni lo intentamos para no saturar logs
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+        console.warn("⚠️ No se enviará correo: faltan credenciales (EMAIL_USER/EMAIL_PASS)");
+        return;
+    }
+
     try {
         let transporter = nodemailer.createTransport({
             service: 'gmail', 
             auth: {
                 user: process.env.EMAIL_USER,
                 pass: process.env.EMAIL_PASS
-            }
+            },
+            // Tiempos de espera para que no se quede colgado
+            connectionTimeout: 5000, 
+            greetingTimeout: 5000,
+            socketTimeout: 10000
         });
 
         // --- TEMPLATE HTML "BONITO" ---
@@ -43,7 +53,7 @@ export const enviarCorreo = async function enviarCorreo(to, subject, body) {
                 <h2 style="color: #1a237e;">¡Hola!</h2>
                 <p style="font-size: 16px;">${body}</p>
                 <div style="text-align: center; margin-top: 30px;">
-                    <a href="https://www.fcbarcelona.com/en/" target="_blank" style="background-color: #ffc107; color: #000; padding: 12px 25px; text-decoration: none; font-weight: bold; border-radius: 5px;">Ir a la aplicación</a>
+                    <a href="https://numerologia-2xv2.onrender.com" target="_blank" style="background-color: #ffc107; color: #000; padding: 12px 25px; text-decoration: none; font-weight: bold; border-radius: 5px;">Ir a la aplicación</a>
                 </div>
             </div>
 
@@ -56,17 +66,21 @@ export const enviarCorreo = async function enviarCorreo(to, subject, body) {
         </div>
         `;
 
-        let info = await transporter.sendMail({
+        // Enviamos sin 'await' en los controladores si queremos que sea 100% no bloqueante,
+        // pero aquí el try/catch ya protege que el error no rompa el servidor.
+        await transporter.sendMail({
             from: `"Soporte Numerología" <${process.env.EMAIL_USER}>`,
             to,
             subject,
-            text: body, // Fallback para clientes que no soportan HTML
-            html: htmlBody // El diseño bonito
+            text: body,
+            html: htmlBody
         });
 
-        console.log("Correo HTML enviado: %s", info.messageId);
+        console.log("✅ Correo enviado a:", to);
     } catch (error) {
-        console.error("Error al enviar el correo:", error);
+        // Logueamos el error pero NO lo lanzamos con throw
+        // Así el flujo del controlador (login, delete, etc.) sigue normal
+        console.error("❌ Error (No crítico) al enviar correo:", error.message);
     }
 }
 
