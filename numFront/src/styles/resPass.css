@@ -1,0 +1,55 @@
+@import url('https://fonts.googleapis.com/css2?family=Epilogue:wght@300;400;500;600;700;800&display=swap');
+
+.respass-container {
+  font-family: 'Epilogue', sans-serif;
+}
+
+.bg-background-light { background-color: #f6f8f6; }
+.text-moss { color: #2d4a34; }
+.text-earth { color: #3d2b1f; }
+.bg-primary-light { background-color: rgba(19, 236, 91, 0.1); }
+.border-radius-xl { border-radius: 2rem; }
+.border-radius-lg { border-radius: 1rem; }
+.opacity-8 { opacity: 0.8; }
+.opacity-6 { opacity: 0.6; }
+.opacity-4 { opacity: 0.4; }
+.tracking-wide { letter-spacing: 0.05em; }
+.text-decoration-none { text-decoration: none; }
+
+.hover-primary {
+  transition: color 0.3s;
+}
+.hover-primary:hover {
+  color: var(--q-primary);
+}
+.hover-scale {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.hover-scale:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(19, 236, 91, 0.25) !important;
+}
+
+/* Modificaciones genéricas a inputs */
+:deep(.q-field--outlined .q-field__control) {
+  border-radius: 30px;
+}
+:deep(.q-field--outlined.q-field--focused .q-field__control:after) {
+  border-color: var(--q-primary) !important;
+  border-width: 2px;
+}
+
+/* Estilos específicos para los cuadros del OTP */
+.otp-input {
+  width: 48px;
+}
+:deep(.otp-input .q-field__control) {
+  border-radius: 12px;
+  height: 56px;
+}
+/* Quitar flechitas del input de numero si en algun momento se pone type="number" */
+:deep(input[type=number]::-webkit-inner-spin-button), 
+:deep(input[type=number]::-webkit-outer-spin-button) { 
+  -webkit-appearance: none; 
+  margin: 0; 
+}

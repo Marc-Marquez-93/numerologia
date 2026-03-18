@@ -1,0 +1,12 @@
+/* Globals */
+body * {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+input, textarea {
+  user-select: auto !important;
+  -webkit-user-select: auto !important;
+}

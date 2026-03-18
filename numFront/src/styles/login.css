@@ -1,0 +1,91 @@
+/* --- src/styles/login.css --- */
+
+@import url('https://fonts.googleapis.com/css2?family=Epilogue:wght@300;400;500;600;700;800&display=swap');
+
+.login-container {
+    font-family: 'Epilogue', sans-serif;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+input, textarea {
+    user-select: auto !important;
+    -webkit-user-select: auto !important;
+}
+
+/* PALETA DE COLORES (Basado en tu Tailwind config) */
+.bg-forest-dark { background-color: #102216; }
+.bg-background-dark { background-color: #0a140d; }
+.text-sage-light { color: #8fa893; } /* Un tono verde/gris claro para textos secundarios */
+.opacity-4 { opacity: 0.4; }
+.opacity-8 { opacity: 0.8; }
+
+/* UTILIDADES TEXTO */
+.tracking-widest { letter-spacing: 0.1em; }
+.tracking-wide { letter-spacing: 0.05em; }
+.text-decoration-none { text-decoration: none; }
+
+/* HOVERS Y ANIMACIONES */
+.hover-underline:hover { 
+    text-decoration: underline; 
+    text-underline-offset: 4px; 
+}
+.hover-scale {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.hover-scale:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(19, 236, 91, 0.25) !important;
+}
+.hover-scale:active {
+    transform: translateY(1px);
+}
+
+/* BLOBS DE LUZ MÍSTICA */
+.blob-login-primary {
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    background-color: var(--q-primary);
+    border-radius: 50%;
+    filter: blur(120px);
+    opacity: 0.08;
+    top: -10%;
+    left: -20%;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* MODIFICACIONES A LOS INPUTS DE QUASAR */
+/* Para que se vean redonditos y bonitos, sin bordes feos */
+:deep(.q-field--outlined .q-field__control) {
+    border-radius: 30px;
+}
+:deep(.q-field--outlined .q-field__control:before) {
+    border-color: rgba(143, 168, 147, 0.3) !important; /* sage neutral claro */
+    border-radius: 30px;
+}
+:deep(.q-field--outlined.q-field--focused .q-field__control:after) {
+    border-color: var(--q-primary) !important;
+    border-width: 2px;
+    border-radius: 30px;
+}
+
+/* UTILIDAD PARA PANTALLAS GRANDES */
+@media (min-width: 1024px) {
+    .md-flex {
+        display: flex;
+    }
+}
+@media (max-width: 1023px) {
+    .md-flex {
+        display: none !important;
+    }
+}
+
+.login-box-glass {
+    background: rgba(255, 255, 255, 0.6); /* Medio blanquito */
+    backdrop-filter: blur(12px); /* Difumina lo que hay detrás */
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+}

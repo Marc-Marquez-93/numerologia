@@ -1,0 +1,107 @@
+/* src/styles/lecturaPrincipal.css */
+
+/* FUENTES Y COLORES GLOBALES (si no los tienes ya en tu base) */
+@import url('https://fonts.googleapis.com/css2?family=Epilogue:wght@300;400;500;600;700&display=swap');
+
+.lectura-container {
+    font-family: 'Epilogue', sans-serif;
+    background-color: #f6f8f6; /* background-light */
+    color: #3d2b1f; /* earth-brown */
+    min-height: 100vh;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+input, textarea {
+    user-select: auto !important;
+    -webkit-user-select: auto !important;
+}
+
+/* PALETA DE COLORES */
+.text-moss { color: #2d4a34; } /* moss-green */
+.bg-moss { background-color: #2d4a34; }
+.text-earth { color: #3d2b1f; }
+.bg-earth { background-color: #3d2b1f; }
+.text-primary-custom { color: #13ec5b; } /* var(--q-primary) */
+
+/* PATRÓN DE FONDO (ornament-pattern) */
+.ornament-pattern {
+    background-image: radial-gradient(circle at 2px 2px, rgba(19, 236, 91, 0.1) 1px, transparent 0);
+    background-size: 24px 24px;
+}
+
+/* EFECTOS Y TARJETAS */
+.lectura-card-wrapper {
+    position: relative;
+    overflow: hidden;
+    border-radius: 24px; /* xl en Tailwind */
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); /* shadow-2xl */
+    border: 1px solid rgba(45, 74, 52, 0.05); /* border-moss-green/5 */
+    background-color: #ffffff;
+}
+
+/* Adornos de hojas en las esquinas */
+.ornament-leaf {
+    position: absolute;
+    opacity: 0.2;
+    transition: opacity 0.3s;
+}
+.lectura-card-wrapper:hover .ornament-leaf {
+    opacity: 0.4;
+}
+.leaf-top-left { top: 2rem; left: 2rem; }
+.leaf-bottom-right { bottom: 2rem; right: 2rem; transform: rotate(180deg); }
+
+/* ANIMACIONES */
+.animate-ping-custom {
+    animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@keyframes ping {
+    75%, 100% {
+        transform: scale(1.5);
+        opacity: 0;
+    }
+}
+
+.hover-scale {
+    transition: transform 0.2s, background-color 0.2s;
+}
+.hover-scale:hover {
+    transform: scale(1.05);
+}
+.hover-scale:active {
+    transform: scale(0.95);
+}
+
+/* --- ESTILOS PARA EL TEXTO DE LA IA --- */
+
+/* La fuente bonita para la lectura */
+.fuente-mistica {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: 1.15rem; /* Un poco más grande para que sea súper legible */
+  line-height: 1.8;
+  color: #3d2b1f; /* text-earth */
+}
+
+/* El estilo para lo que era ### */
+.lectura-titulo {
+  display: block; /* Para que se comporte como un bloque independiente */
+  font-family: 'Epilogue', sans-serif; /* Volvemos a la fuente moderna para los títulos */
+  font-weight: 800; /* Extra negrilla */
+  text-transform: uppercase; /* MAYÚSCULAS */
+  color: #2d4a34; /* text-moss */
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  letter-spacing: 1px;
+}
+
+/* El estilo para lo que era **texto** */
+.lectura-destacado {
+  font-weight: 700;
+  color: #1a3a22; /* Un verde un poco más oscuro para que resalte en la lectura */
+}
+
+.lectura-destacado em {
+  font-style: italic;
+}
