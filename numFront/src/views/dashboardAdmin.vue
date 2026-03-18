@@ -2,11 +2,13 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useUsuarioStore } from '../stores/Usuario.js';
+import { useQuasar } from 'quasar';
 import axiosInstance from "../plugins/axios.js";
 import { useNotifications } from '../composables/useNotify.js';
 
 const router = useRouter();
 const usuarioStore = useUsuarioStore();
+const $q = useQuasar();
 const { error } = useNotifications();
 
 const usuarios = ref([]);
@@ -18,8 +20,9 @@ const columnas = [
   { name: 'nombres', align: 'left', label: 'Nombre Completo', field: 'nombre', sortable: true },
   { name: 'correo', align: 'left', label: 'Correo Electrónico', field: 'email', sortable: true },
   { name: 'edad', align: 'center', label: 'Nacimiento', field: row => formatDate(row.fecha_nacimiento), sortable: true },
-  { name: 'rol', align: 'center', label: 'Rol', field: 'rol', sortable: true },
   { name: 'estadoPago', align: 'center', label: 'Estado Suscripción', field: 'estadoPago', sortable: true },
+  { name: 'estadoCuenta', align: 'center', label: 'Acceso', field: 'estado', sortable: true },
+  { name: 'acciones', align: 'center', label: 'Acciones', field: 'acciones' }
 ];
 
 const formatDate = (dateString) => {
@@ -35,6 +38,7 @@ const cargarDataAdministrativa = async () => {
         // 1. Cargar todos los usuarios (Requiere token en headers, lo hace axiosInstance automáticamente)
         const resUsuarios = await axiosInstance.get('/usuario');
         let usuariosData = resUsuarios.data.usuarios || [];
+        usuariosData = usuariosData.filter(u => u.rol !== 'admin' && u.rol !== 1); // Solo usuarios normales
 
         // 2. Cargar todos los pagos para cruzarlos
         const resPagos = await axiosInstance.get('/pago');
@@ -91,6 +95,41 @@ onMounted(() => {
 const volverInicio = () => {
     router.push('/');
 }
+
+const cambiarEstado = async (row) => {
+    try {
+        cargando.value = true;
+        const url = row.estado === 1 ? `/usuario/inactivar/${row.email}` : `/usuario/activar/${row.email}`;
+        await axiosInstance.put(url);
+        await cargarDataAdministrativa();
+        $q.notify({ type: 'positive', message: row.estado === 1 ? 'Usuario inactivado' : 'Usuario activado' });
+    } catch (err) {
+        console.error(err);
+        $q.notify({ type: 'negative', message: 'Error al cambiar estado' });
+        cargando.value = false;
+    }
+};
+
+const eliminarUsuarioAdmin = (row) => {
+    $q.dialog({
+        title: '¡Atención!',
+        message: `¿Seguro que quiere eliminar al usuario ${row.nombre}? Perderá todas sus lecturas y pagos.`,
+        cancel: true,
+        persistent: true,
+        ok: { color: 'negative', label: 'Eliminar definitivamente' }
+    }).onOk(async () => {
+        try {
+            cargando.value = true;
+            await axiosInstance.delete(`/usuario/${row.email}`);
+            await cargarDataAdministrativa();
+            $q.notify({ type: 'positive', message: 'Usuario eliminado con éxito' });
+        } catch (err) {
+            console.error(err);
+            $q.notify({ type: 'negative', message: 'Error al eliminar usuario' });
+            cargando.value = false;
+        }
+    });
+};
 </script>
 
 <template>
@@ -110,7 +149,7 @@ const volverInicio = () => {
     </div>
 
     <!-- Main Content -->
-    <div class="full-width max-width">
+    <div class="full-width max-width q-px-sm">
         <q-card class="admin-card glass-card shadow-soft border-radius-xl" flat>
             <q-table
                 title="Usuarios Registrados"
@@ -121,7 +160,10 @@ const volverInicio = () => {
                 :filter="filtro"
                 class="bg-transparent"
                 table-header-class="text-moss text-weight-bold bg-moss-light"
+                separator="horizontal"
                 flat
+                hide-bottom
+                :pagination="{ rowsPerPage: 0 }"
             >
                 <!-- Buscador Lateral -->
                 <template v-slot:top-right>
@@ -146,16 +188,36 @@ const volverInicio = () => {
                     </q-td>
                 </template>
 
-                <!-- Personalización de la columna Rol -->
-                <template v-slot:body-cell-rol="props">
+                <!-- Personalización de la columna Estado Cuenta -->
+                <template v-slot:body-cell-estadoCuenta="props">
                     <q-td :props="props">
                         <q-chip outline 
-                            :color="props.row.rol === 'admin' ? 'purple' : 'moss'"
+                            :color="props.row.estado === 1 ? 'positive' : 'negative'"
                             size="sm"
                             class="text-weight-bold text-uppercase"
                         >
-                            {{ props.row.rol }}
+                            {{ props.row.estado === 1 ? 'Activo' : 'Inactivo' }}
                         </q-chip>
+                    </q-td>
+                </template>
+
+                <!-- Columna de Acciones -->
+                <template v-slot:body-cell-acciones="props">
+                    <q-td :props="props" class="q-gutter-x-sm">
+                        <!-- Botón Activar / Inactivar -->
+                        <q-btn round flat dense 
+                            :color="props.row.estado === 1 ? 'warning' : 'positive'" 
+                            :icon="props.row.estado === 1 ? 'block' : 'check_circle'" 
+                            :title="props.row.estado === 1 ? 'Inactivar usuario' : 'Activar usuario'"
+                            @click="cambiarEstado(props.row)"
+                        />
+                        <!-- Botón Eliminar -->
+                        <q-btn round flat dense 
+                            color="negative" 
+                            icon="delete" 
+                            title="Eliminar usuario"
+                            @click="eliminarUsuarioAdmin(props.row)"
+                        />
                     </q-td>
                 </template>
 

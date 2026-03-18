@@ -1,8 +1,13 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { useQuasar } from 'quasar';
+import { useUsuarioStore } from '../stores/Usuario.js';
+import axiosInstance from '../plugins/axios.js';
 
 const router = useRouter();
+const $q = useQuasar();
+const usuarioStore = useUsuarioStore();
 const tab = ref(router.currentRoute.value.path.includes('diaria') ? 'diaria' : 'principal');
 
 const navigateTo = (route) => {
@@ -19,7 +24,31 @@ const volverInicio = () => {
 
 const cerrarSesion = () => {
     // Aquí puedes limpiar las stores si lo deseas
+    usuarioStore.$reset();
     router.push("/login");
+};
+
+const eliminarUsuario = () => {
+  $q.dialog({
+    title: 'Eliminar Cuenta',
+    message: '¿Seguro que quiere eliminar usuario? Perderá todas sus lecturas y pagos.',
+    cancel: true,
+    persistent: true,
+    ok: {
+      color: 'negative',
+      label: 'Eliminar'
+    }
+  }).onOk(async () => {
+    try {
+      if (usuarioStore.email) {
+        await axiosInstance.delete(`/usuario/${usuarioStore.email}`);
+        cerrarSesion();
+      }
+    } catch (err) {
+      console.error("Error al eliminar el usuario", err);
+      $q.notify({ type: 'negative', message: 'No se pudo eliminar el usuario.' });
+    }
+  });
 };
 </script>
 
@@ -32,6 +61,7 @@ const cerrarSesion = () => {
         <span class="text-weight-bold tracking-tight text-subtitle1" style="color: white;">BEAUTY SOUL</span>
       </div>
       <div class="row items-center q-gutter-x-sm">
+        <q-btn flat round color="negative" icon="delete_forever" @click="eliminarUsuario" title="Eliminar cuenta" />
         <q-btn flat round color="white" icon="home" @click="volverInicio" title="Inicio" />
         <q-btn flat round color="white" icon="logout" @click="cerrarSesion" title="Cerrar sesión" />
       </div>
