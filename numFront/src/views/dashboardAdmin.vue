@@ -119,7 +119,7 @@ const volverInicio = () => {
         message: '¿Estás seguro de salir al inicio? Se cerrará la vista administrativa.',
         cancel: { flat: true, color: 'grey-7', noCaps: true, label: 'Cancelar' },
         persistent: true,
-        ok: { color: 'moss', label: 'Sí, Salir', noCaps: true, unelevated: true }
+        ok: { color: 'moss', label: 'Sí, Salir', noCaps: true, textColor: 'white', unelevated: true }
     }).onOk(() => {
         router.push('/');
     });
@@ -145,7 +145,7 @@ const eliminarUsuarioAdmin = (row) => {
         message: `¿Seguro que quiere eliminar al usuario ${row.nombre}? Perderá todas sus lecturas y pagos.`,
         cancel: { flat: true, color: 'grey-7', label: 'Volver' },
         persistent: true,
-        ok: { color: 'negative', label: 'Eliminar definitivamente', unelevated: true }
+    ok: { color: 'moss', label: 'Eliminar definitivamente', textColor: 'white', unelevated: true }
     }).onOk(async () => {
         try {
             cargando.value = true;

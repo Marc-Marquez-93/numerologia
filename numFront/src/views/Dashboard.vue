@@ -32,7 +32,7 @@ const volverInicio = () => {
     message: '¿Estás seguro de salir de tu dashboard espiritual?',
     cancel: { flat: true, color: 'grey-7', noCaps: true, label: 'Cancelar' },
     persistent: true,
-    ok: { color: 'primary', label: 'Sí, Salir', noCaps: true, textColor: 'dark', unelevated: true }
+    ok: { color: 'moss', label: 'Sí, Salir', noCaps: true, textColor: 'white', unelevated: true }
   }).onOk(() => {
     router.push("/");
   });
@@ -44,7 +44,7 @@ const cerrarSesion = () => {
     message: '¿Estás seguro de que deseas cerrar tu sesión actual?',
     cancel: { flat: true, color: 'grey-7', noCaps: true, label: 'Cancelar' },
     persistent: true,
-    ok: { color: 'negative', label: 'Cerrar Sesión', noCaps: true, unelevated: true }
+    ok: { color: 'moss', label: 'Cerrar Sesión', noCaps: true, textColor: 'white', unelevated: true }
   }).onOk(() => {
     // Limpiamos ambas stores y redirigimos a login
     usuarioStore.$reset();
@@ -60,8 +60,9 @@ const eliminarUsuario = () => {
     cancel: { flat: true, color: 'grey-7', label: 'Cancelar' },
     persistent: true,
     ok: {
-      color: 'negative',
+      color: 'moss',
       label: 'Eliminar',
+      textColor: 'white',
       unelevated: true
     }
   }).onOk(async () => {

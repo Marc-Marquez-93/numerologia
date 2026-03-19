@@ -58,7 +58,7 @@ onMounted(() => {
           <q-icon name="eco" size="3rem" class="text-moss ornament-leaf leaf-top-left" />
           <q-icon name="eco" size="3rem" class="text-moss ornament-leaf leaf-bottom-right" />
 
-          <div class="q-pa-lg md:q-pa-xl text-center relative-position z-top">
+          <div class="q-pa-lg md:q-pa-xl text-center relative-position">
             <div class="q-mb-lg">
               <p class="text-caption text-weight-bold text-primary text-uppercase tracking-widest q-mb-sm">
                 Mensaje de los Astros
