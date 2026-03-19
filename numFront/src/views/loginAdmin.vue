@@ -28,17 +28,39 @@ const loginAdministrador = async () => {
     try {
         const res = await postData('/usuario/login', form.value);
         
-        if (res.usuario.rol !== 'admin' && res.usuario.rol !== 1) {
-            return error("Acceso Denegado", "Esta cuenta no tiene privilegios de administrador.");
-        }
-
-        // Guardamos el token en authStore (que es el que usa axiosInstance)
+        // Guardamos el token en authStore
         authStore.token = res.token;
         usuarioStore.email = res.usuario.email;
         usuarioStore.nombre = res.usuario.nombre;
-        
-        success("Acceso Concedido", "Bienvenido al portal administrativo.");
-        router.push('/dashboardAdmin');
+
+        // Verificamos el rol para redirección
+        const esAdmin = res.usuario.rol === 'admin' || res.usuario.rol === 1;
+
+        if (esAdmin) {
+            success("Acceso Concedido", "Bienvenido al portal administrativo.");
+            router.push('/dashboardAdmin');
+        } else {
+            // Lógica "Salvavidas" para el usuario normal
+            try {
+                const resPago = await axiosInstance.get(`/pago/estado/${res.usuario.email}`);
+                if (resPago.data.estado === "activo") {
+                    const resLecturas = await axiosInstance.get(`/lectura/usuario/${res.usuario.email}`);
+                    const lecturasDiarias = (resLecturas.data.lecturas || []).filter(l => l.tipo === 1);
+                    const hoyString = new Date().toDateString();
+                    
+                    const tieneLecturaHoy = lecturasDiarias.some(l => new Date(l.fecha_lectura || l.createdAt).toDateString() === hoyString);
+
+                    if (!tieneLecturaHoy) {
+                        await postData(`/lectura/diaria/${res.usuario.email}`, {});
+                    }
+                }
+            } catch (errorAuxiliar) {
+                console.warn("Fallo no crítico en la sincronización de energía (lectura diaria)");
+            }
+
+            success("¡Bienvenido de vuelta!", "Sincronizando tus energías...");
+            router.push('/dashboard');
+        }
 
     } catch (err) {
         console.error(err);
@@ -69,7 +91,7 @@ const volverInicio = () => {
             <div class="q-mb-md">
                 <q-icon name="admin_panel_settings" color="primary-glow" size="4rem" class="icon-glow" />
             </div>
-            <h2 class="text-h4 text-weight-bold text-white q-ma-none font-cyber">ALMA BELLA <span class="text-primary-glow">Admin</span></h2>
+            <h2 class="text-h4 text-weight-bold text-white q-ma-none font-cyber">ALMA BELLA</h2>
             <p class="text-caption text-grey-5 tracking-widest text-uppercase q-mt-sm font-cyber">Portal de Acceso Seguro</p>
         </q-card-section>
 
@@ -77,11 +99,11 @@ const volverInicio = () => {
             <q-form @submit.prevent="loginAdministrador" class="q-gutter-y-lg">
                 
                 <div>
-                    <div class="text-caption text-weight-bold text-uppercase text-grey-5 q-mb-xs font-cyber" style="letter-spacing: 1px;">Correo del Administrador</div>
+                    <div class="text-caption text-weight-bold text-uppercase text-grey-5 q-mb-xs font-cyber" style="letter-spacing: 1px;">Correo Electrónico</div>
                     <q-input 
                         v-model="form.email" 
                         type="email"
-                        placeholder="admin@almabella.com" 
+                        placeholder="tu@energia.com" 
                         dark 
                         outlined 
                         dense 
@@ -94,7 +116,10 @@ const volverInicio = () => {
                 </div>
 
                 <div>
-                    <div class="text-caption text-weight-bold text-uppercase text-grey-5 q-mb-xs font-cyber" style="letter-spacing: 1px;">Clave de Seguridad / Contraseña</div>
+                    <div class="row justify-between items-center q-mb-xs">
+                        <div class="text-caption text-weight-bold text-uppercase text-grey-5 font-cyber" style="letter-spacing: 1px;">Clave de Seguridad / Contraseña</div>
+                        <router-link to="/resPass" class="text-caption text-grey-6 text-weight-bold font-cyber hover-glow-text" style="text-decoration: none;">¿Olvidaste tu contraseña?</router-link>
+                    </div>
                     <q-input 
                         v-model="form.password" 
                         :type="mostrarPassword ? 'text' : 'password'"
@@ -138,8 +163,9 @@ const volverInicio = () => {
                 />
             </q-form>
 
-            <div class="text-center q-mt-xl text-caption font-cyber text-grey-6">
-                ¿Nuevo personal autorizado? <span @click="irARegistro" class="text-primary-glow cursor-pointer hover-glow-text" style="text-decoration: underline;">Solicitar acceso a la terminal</span>
+            <!-- Espacio para balance visual -->
+            <div class="q-mt-xl text-center text-caption font-cyber text-grey-6 opacity-0">
+                .
             </div>
         </q-card-section>
     </q-card>

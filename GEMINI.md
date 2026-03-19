@@ -72,7 +72,7 @@ mongo/                          ← Raíz del monorepo
 
 ### Sistema de IA (Gemini)
 
-- Usa `gemini-2.0-flash` con failover entre múltiples API Keys
+- Usa `gemini-3-flash-preview` con failover entre múltiples API Keys
 - Genera lecturas basadas en la **fecha de nacimiento** del usuario
 - Dos tipos: Lectura Principal (única) y Lectura Diaria (recurrente)
 - El prompt mystiocamente interpreta los números de la fecha

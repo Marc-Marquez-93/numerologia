@@ -30,7 +30,7 @@ const registrarAdministrador = async () => {
         const res = await postData('/usuario', form.value);
         
         success("Registro Exitoso", "Terminal administrativa autorizada. Ya puedes iniciar sesión.");
-        router.push('/loginAdmin');
+        router.push('/login');
 
     } catch (err) {
         console.error(err);
@@ -42,7 +42,7 @@ const registrarAdministrador = async () => {
 };
 
 const volverLogin = () => {
-    router.push('/loginAdmin');
+    router.push('/login');
 };
 </script>
 

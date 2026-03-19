@@ -117,16 +117,6 @@ async function registrarUsuario() {
 
       <div class="row items-center q-gutter-md">
         <q-btn
-          outline
-          color="moss"
-          label="Admin"
-          class="text-weight-bold"
-          rounded
-          no-caps
-          to="/admin"
-        />
-
-        <q-btn
           to="/login"
           label="Iniciar Sesión"
           color="primary"
@@ -147,9 +137,10 @@ async function registrarUsuario() {
         <q-chip
           color="primary"
           text-color="moss"
-          class="text-weight-bold text-uppercase q-mb-lg bg-primary-light"
+          class="text-weight-bold text-uppercase q-mb-lg bg-primary-light cursor-pointer"
           outline
           square
+          @click="router.push('/registrarAdmin')"
         >
           Crecimiento Espiritual
         </q-chip>

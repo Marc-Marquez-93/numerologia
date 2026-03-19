@@ -101,7 +101,7 @@ const cargarDataAdministrativa = async () => {
 onMounted(() => {
     // Protección rudimentaria de ruta (el backend de todos modos frena si no hay token valido)
     if (!authStore.token) {
-        router.push('/loginAdmin');
+        router.push('/login');
         return;
     }
     cargarDataAdministrativa();
