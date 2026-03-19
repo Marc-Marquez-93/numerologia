@@ -108,7 +108,15 @@ onMounted(() => {
 });
 
 const volverInicio = () => {
-    router.push('/');
+    $q.dialog({
+        title: 'Confirmar Salida',
+        message: '¿Estás seguro de salir al inicio? Se cerrará la vista administrativa.',
+        cancel: true,
+        persistent: true,
+        ok: { color: 'moss', label: 'Sí, Salir', noCaps: true }
+    }).onOk(() => {
+        router.push('/');
+    });
 }
 
 const cambiarEstado = async (row) => {
@@ -152,16 +160,17 @@ const cargandoCrear = ref(false);
 const adminNuevo = ref({
     nombre: '',
     email: '',
-    password: ''
+    password: '',
+    adminCode: ''
 });
 
 const abrirModalCrear = () => {
-    adminNuevo.value = { nombre: '', email: '', password: '' };
+    adminNuevo.value = { nombre: '', email: '', password: '', adminCode: '' };
     mostrarModalCrear.value = true;
 };
 
 const guardarNuevoAdmin = async () => {
-    if (!adminNuevo.value.nombre || !adminNuevo.value.email || !adminNuevo.value.password) {
+    if (!adminNuevo.value.nombre || !adminNuevo.value.email || !adminNuevo.value.password || !adminNuevo.value.adminCode) {
         return $q.notify({ type: 'warning', message: 'Todos los campos son obligatorios' });
     }
 
@@ -171,6 +180,7 @@ const guardarNuevoAdmin = async () => {
             nombre: adminNuevo.value.nombre,
             email: adminNuevo.value.email,
             password: adminNuevo.value.password,
+            adminCode: adminNuevo.value.adminCode,
             rol: 'admin'
         };
 
@@ -417,6 +427,26 @@ const guardarCambiosUsuario = async () => {
                 <div>
                     <div class="text-caption text-weight-bold text-moss q-mb-xs">Contraseña Temporal</div>
                     <q-input v-model="adminNuevo.password" type="password" outlined dense color="primary" rounded placeholder="••••••••" />
+                </div>
+
+                <q-separator class="q-my-sm" />
+
+                <div>
+                    <div class="text-caption text-weight-bold text-moss q-mb-xs">Código Secreto Admin</div>
+                    <q-input 
+                        v-model="adminNuevo.adminCode" 
+                        type="password" 
+                        outlined 
+                        dense 
+                        color="secondary" 
+                        rounded 
+                        placeholder="Requerido para el Backend"
+                        bg-color="amber-1"
+                    >
+                        <template v-slot:prepend>
+                            <q-icon name="key" color="amber-9" />
+                        </template>
+                    </q-input>
                 </div>
             </q-card-section>
 

@@ -21,14 +21,30 @@ const navigateTo = (route) => {
 };
 
 const volverInicio = () => {
-  router.push("/");
+  $q.dialog({
+    title: '¿Salir al Inicio?',
+    message: '¿Estás seguro de salir de tu dashboard espiritual?',
+    cancel: true,
+    persistent: true,
+    ok: { color: 'primary', label: 'Sí, Salir', noCaps: true }
+  }).onOk(() => {
+    router.push("/");
+  });
 };
 
 const cerrarSesion = () => {
+  $q.dialog({
+    title: 'Cerrar Sesión',
+    message: '¿Estás seguro de que deseas cerrar tu sesión actual?',
+    cancel: true,
+    persistent: true,
+    ok: { color: 'negative', label: 'Cerrar Sesión', noCaps: true }
+  }).onOk(() => {
     // Limpiamos ambas stores y redirigimos a login
     usuarioStore.$reset();
     authStore.token = '';
     router.push("/login");
+  });
 };
 
 const eliminarUsuario = () => {
