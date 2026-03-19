@@ -1,15 +1,21 @@
 /* Estilos Globales para ALMA BELLA */
 
-/* Desactivar selección de texto globalmente para una experiencia más de "App" */
-/* Se aplica a los contenedores principales para evitar el resaltado azul accidental */
-.numera-container, .dashboard-container, .admin-container, .admin-auth-container, .lectura-container, .pago-container {
-    user-select: none;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
+/* Bloqueo de selección para elementos de Interfaz (Navbar, Botones, Pestañas) */
+.q-btn, .q-tab, .q-header, nav, .text-subtitle1, h1, h2, .footer-text, .q-avatar {
+    user-select: none !important;
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
 }
 
-/* Permitir selección solo en campos de entrada y áreas de edición */
+/* El contenido del dashboard y lecturas DEBE ser seleccionable */
+/* Esto permite al usuario copiar su mensaje diario o lectura principal */
+.dashboard-content, .lectura-container q-card, .mensaje-texto, .text-moss {
+    user-select: text !important;
+    -webkit-user-select: text !important;
+}
+
+/* Campos de entrada siempre seleccionables */
 input, textarea, [contenteditable="true"] {
     user-select: text !important;
     -webkit-user-select: text !important;
@@ -17,14 +23,15 @@ input, textarea, [contenteditable="true"] {
 
 /* Transiciones suaves estándar (CSS puro) */
 .q-btn {
-    transition: transform 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease;
+    transition: opacity 0.2s ease;
 }
 
-.q-btn:active {
-    transform: scale(0.95);
-    opacity: 0.9;
-}
-
+/* Evitamos efectos de escala globales que interfieren con el feedback de Quasar */
 .hover-scale:hover {
-    transform: scale(1.05);
+    transform: scale(1.02);
+}
+
+/* Tap highlight para móviles */
+* {
+    -webkit-tap-highlight-color: transparent;
 }

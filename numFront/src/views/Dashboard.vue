@@ -140,8 +140,6 @@ const eliminarUsuario = () => {
   background-color: #f8f6f0; /* Fondo soft del proyecto */
   position: relative;
   overflow-x: hidden;
-  user-select: none;
-  -webkit-user-select: none;
 }
 
 .custom-nav {
