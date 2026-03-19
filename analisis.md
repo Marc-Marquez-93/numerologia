@@ -35,6 +35,7 @@ El proyecto sigue una estructura de **Monorepo** con una clara separación entre
 
 ### 4. Seguridad y Utilidades
 - **Autenticación:** JWT en el header `x-token`.
+- **Admin Verification:** Uso de `adminCode` sincronizado con `ADMIN_SECRET_KEY` para registro de personal.
 - **Encriptación:** `bcryptjs` para contraseñas.
 - **Comunicación:** `Nodemailer` configurado con Gmail para notificaciones y recuperación de cuenta.
 
@@ -48,14 +49,16 @@ El proyecto sigue una estructura de **Monorepo** con una clara separación entre
 - **Axios:** Cliente HTTP centralizado en `axios.js` con interceptores automáticos para inyectar el token JWT.
 
 ### 2. Flujo de Usuario
-- **Inicio/Registro:** Formulario con validaciones en tiempo real y spinner de carga.
+- **Inicio/Registro:** Formulario con validaciones en tiempo real y spinner de carga. Con logo decorativo no-interactivo.
+- **UX Segura:** Restricción global de selección de texto (`user-select: none`) y diálogos de confirmación para salir de Dashboards.
 - **Lectura Principal:** Generada inmediatamente tras el registro.
 - **Dashboard:** Layout moderno con navegación por pestañas para lecturas y gestión de perfil.
 - **Admin Panel:** Tabla avanzada en `dashboardAdmin.vue` que permite:
+    - Registro de administradores mediante modal integrado (requiere código).
     - Filtrar usuarios vs administradores.
     - Buscar en tiempo real.
     - Editar datos completos (incluyendo cambio de rol y estado).
-    - Activar/Inactivar o Eliminar cuentas.
+    - Activar/Inactivar o Eliminar cuentas con confirmación.
 
 ---
 
@@ -63,9 +66,9 @@ El proyecto sigue una estructura de **Monorepo** con una clara separación entre
 
 | Área | Observación |
 |---|---|
-| **IA** | El código usa `gemini-3-flash-preview`. Si este modelo no está disponible, podría fallar. |
-| **Seguridad** | Rutas administrativas protegidas correctamente. |
-| **UX** | Estética premium con Quasar y efectos visuales modernos. |
+| **IA** | El código usa `gemini-3-flash-preview`. |
+| **Seguridad** | Doble factor rudiementario con `adminCode` y rutas protegidas por JWT. |
+| **UX** | Estética premium con Quasar; refinado con bloqueo de selección y confirmaciones de navegación. |
 | **Mantenibilidad** | Lógica centralizada en servicios y composables. |
 
 ---

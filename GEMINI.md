@@ -91,6 +91,9 @@ mongo/                          ← Raíz del monorepo
 - **Usuarios inactivos** (`estado: 0`) no pueden iniciar sesión
 - **CRON_SECRET_TOKEN** para autorizar el worker automático
 - **Código OTP de 6 dígitos** con expiración de 30 min para recuperación de contraseña
+- **ADMIN_SECRET_KEY**: Código de autorización requerido en el frontend para crear nuevas cuentas administrativas.
+- **Navegación Protegida**: Diálogos de confirmación en Dashboards para evitar salidas accidentales.
+- **UX Restringida**: Bloqueo global de `user-select` para prevenir resaltados de texto no deseados.
 
 ---
 
@@ -123,6 +126,7 @@ mongo/                          ← Raíz del monorepo
 ### Dashboard Admin — Funcionalidades
 
 - **Toggle Usuarios/Admins**: Filtra la tabla por rol
+- **Botón Crear Admin**: Abre un modal integrado para registrar un administrador (requiere `adminCode`)
 - **Botón Editar** (✏️): Abre modal para modificar nombre, email, rol, fecha y estado
 - **Botón Activar/Inactivar** (⚠️/✅): Cambia el acceso del usuario
 - **Botón Eliminar** (🗑️): Confirmación antes de borrar
@@ -152,6 +156,9 @@ EMAIL_PASS=app_password
 
 # Cron
 CRON_SECRET_TOKEN=token_secreto_cron
+
+# Security Admin Code
+ADMIN_SECRET_KEY=clave_maestra_admin
 
 # Server
 PORT=4500
