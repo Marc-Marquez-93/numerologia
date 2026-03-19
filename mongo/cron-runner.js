@@ -25,7 +25,8 @@ cron.schedule('0 7 * * *', async () => {
         });
         
         const pagos = responsePagos.data.pagos || [];
-        const pagosActivos = pagos.filter(p => p.estado === 'activo');
+        const ahora = new Date();
+        const pagosActivos = pagos.filter(p => new Date(p.vencimiento) >= ahora);
         
         console.log(`Se encontraron ${pagosActivos.length} usuarios con suscripción activa.`);
 

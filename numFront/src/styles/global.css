@@ -35,3 +35,19 @@ input, textarea, [contenteditable="true"] {
 * {
     -webkit-tap-highlight-color: transparent;
 }
+
+/* --- CLASES DE NOTIFICACIÓN (FIJAR Z-INDEX Y VISIBILIDAD) --- */
+/* Se usan en src/composables/useNotify.js */
+
+.success-notification, .error-notification, .warning-notification, .info-notification {
+    z-index: 10000 !important; /* Por encima de cualquier modal o glass-card */
+    border-radius: 12px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.15) !important;
+    font-weight: 500;
+    min-width: 300px;
+}
+
+.success-notification { border-left: 5px solid #13ec5b; }
+.error-notification { border-left: 5px solid #ff5252; }
+.warning-notification { border-left: 5px solid #f2c037; }
+.info-notification { border-left: 5px solid #31ccec; }

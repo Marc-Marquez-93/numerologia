@@ -422,17 +422,17 @@ const guardarCambiosUsuario = async () => {
                 </div>
                 <div>
                     <div class="text-caption text-weight-bold text-moss q-mb-xs">Nombre Completo</div>
-                    <q-input v-model="adminNuevo.nombre" outlined dense color="primary" rounded placeholder="Ej. Alex Ferguson" />
+                    <q-input v-model="adminNuevo.nombre" outlined dense color="primary" rounded placeholder="Ej. Alex Ferguson" bg-color="white" />
                 </div>
 
                 <div>
                     <div class="text-caption text-weight-bold text-moss q-mb-xs">Correo Institucional</div>
-                    <q-input v-model="adminNuevo.email" type="email" outlined dense color="primary" rounded placeholder="admin@almabella.com" />
+                    <q-input v-model="adminNuevo.email" type="email" outlined dense color="primary" rounded placeholder="admin@almabella.com" bg-color="white" />
                 </div>
 
                 <div>
                     <div class="text-caption text-weight-bold text-moss q-mb-xs">Contraseña Temporal</div>
-                    <q-input v-model="adminNuevo.password" type="password" outlined dense color="primary" rounded placeholder="••••••••" />
+                    <q-input v-model="adminNuevo.password" type="password" outlined dense color="primary" rounded placeholder="••••••••" bg-color="white" />
                 </div>
 
                 <q-separator class="q-my-sm" />
@@ -447,21 +447,21 @@ const guardarCambiosUsuario = async () => {
                         color="secondary" 
                         rounded 
                         placeholder="Requerido para el Backend"
-                        bg-color="amber-1"
+                        bg-color="green-1"
                     >
                         <template v-slot:prepend>
-                            <q-icon name="key" color="amber-9" />
+                            <q-icon name="key" color="green-9" />
                         </template>
                     </q-input>
                 </div>
             </q-card-section>
 
-            <q-card-actions align="right" class="q-pt-lg">
-                <q-btn flat label="Cancelar" color="grey-7" v-close-popup rounded no-caps />
+            <q-card-actions align="right" class="q-pt-lg bg-grey-1">
+                <q-btn flat label="Cancelar" color="grey-8" v-close-popup rounded no-caps />
                 <q-btn 
                     label="Registrar Administrador" 
-                    color="moss" 
-                    text-color="white" 
+                    color="primary" 
+                    text-color="dark" 
                     @click="guardarNuevoAdmin" 
                     :loading="cargandoCrear"
                     rounded unelevated no-caps
@@ -483,12 +483,12 @@ const guardarCambiosUsuario = async () => {
             <q-card-section class="q-pt-md q-gutter-y-md">
                 <div>
                     <div class="text-caption text-weight-bold text-moss q-mb-xs">Nombre Completo</div>
-                    <q-input v-model="usuarioEditar.nombre" outlined dense color="primary" rounded />
+                    <q-input v-model="usuarioEditar.nombre" outlined dense color="primary" rounded bg-color="white" />
                 </div>
 
                 <div>
                     <div class="text-caption text-weight-bold text-moss q-mb-xs">Correo Electrónico</div>
-                    <q-input v-model="usuarioEditar.email" type="email" outlined dense color="primary" rounded />
+                    <q-input v-model="usuarioEditar.email" type="email" outlined dense color="primary" rounded bg-color="white" />
                 </div>
 
                 <div class="row q-col-gutter-sm">
@@ -500,11 +500,12 @@ const guardarCambiosUsuario = async () => {
                             outlined dense color="primary" rounded
                             emit-value
                             map-options
+                            bg-color="white"
                         />
                     </div>
                     <div class="col-6">
                         <div class="text-caption text-weight-bold text-moss q-mb-xs">Fecha Nacimiento</div>
-                        <q-input v-model="usuarioEditar.fecha_nacimiento" type="date" outlined dense color="primary" rounded />
+                        <q-input v-model="usuarioEditar.fecha_nacimiento" type="date" outlined dense color="primary" rounded bg-color="white" />
                     </div>
                 </div>
 
@@ -525,8 +526,8 @@ const guardarCambiosUsuario = async () => {
                 </div>
             </q-card-section>
 
-            <q-card-actions align="right" class="q-pt-lg">
-                <q-btn flat label="Cancelar" color="grey-7" v-close-popup rounded no-caps />
+            <q-card-actions align="right" class="q-pt-lg bg-grey-1">
+                <q-btn flat label="Cancelar" color="grey-8" v-close-popup rounded no-caps />
                 <q-btn 
                     label="Guardar Cambios" 
                     color="primary" 
