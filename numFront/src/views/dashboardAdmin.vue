@@ -119,7 +119,7 @@ const volverInicio = () => {
         message: '¿Estás seguro de salir al inicio? Se cerrará la vista administrativa.',
         cancel: { flat: true, color: 'grey-7', noCaps: true, label: 'Cancelar' },
         persistent: true,
-        ok: { color: 'moss', label: 'SÍ, SALIR', noCaps: false, textColor: 'white', unelevated: true }
+        ok: { color: 'primary', label: 'SÍ, SALIR', noCaps: false, textColor: 'dark', unelevated: true }
     }).onOk(() => {
         router.push('/');
     });
@@ -145,7 +145,7 @@ const eliminarUsuarioAdmin = (row) => {
         message: `¿Seguro que quiere eliminar al usuario ${row.nombre}? Perderá todas sus lecturas y pagos.`,
         cancel: { flat: true, color: 'grey-7', label: 'Volver' },
         persistent: true,
-    ok: { color: 'moss', label: 'ELIMINAR DEFINITIVAMENTE', textColor: 'white', unelevated: true }
+    ok: { color: 'primary', label: 'ELIMINAR DEFINITIVAMENTE', textColor: 'dark', unelevated: true }
     }).onOk(async () => {
         try {
             cargando.value = true;
@@ -162,6 +162,7 @@ const eliminarUsuarioAdmin = (row) => {
 
 // --- CREACIÓN DE ADMINISTRADOR (NUEVO) ---
 const mostrarModalCrear = ref(false);
+const mostrarPasswordNuevo = ref(false);
 const cargandoCrear = ref(false);
 const adminNuevo = ref({
     nombre: '',
@@ -187,7 +188,7 @@ const guardarNuevoAdmin = async () => {
             email: adminNuevo.value.email,
             password: adminNuevo.value.password,
             adminCode: adminNuevo.value.adminCode,
-            rol: 'admin'
+            rol: 1
         };
 
         await axiosInstance.post('/usuario', payload);
@@ -432,7 +433,20 @@ const guardarCambiosUsuario = async () => {
 
                 <div>
                     <div class="text-caption text-weight-bold text-moss q-mb-xs">Contraseña Temporal</div>
-                    <q-input v-model="adminNuevo.password" type="password" outlined dense color="primary" rounded placeholder="••••••••" bg-color="white" />
+                    <q-input 
+                        v-model="adminNuevo.password" 
+                        :type="mostrarPasswordNuevo ? 'text' : 'password'" 
+                        outlined dense color="primary" rounded 
+                        placeholder="••••••••" bg-color="white"
+                    >
+                        <template v-slot:append>
+                            <q-icon 
+                                :name="mostrarPasswordNuevo ? 'visibility_off' : 'visibility'" 
+                                class="cursor-pointer" 
+                                @click="mostrarPasswordNuevo = !mostrarPasswordNuevo" 
+                            />
+                        </template>
+                    </q-input>
                 </div>
 
                 <q-separator class="q-my-sm" />
