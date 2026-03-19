@@ -59,7 +59,7 @@ const eliminarUsuario = () => {
   <div class="dashboard-container hide-scrollbar">
     <!-- Navbar global -->
     <nav class="fixed-top full-width q-pa-md flex justify-between items-center z-top bg-forest-dark custom-nav shadow-3">
-      <div class="row items-center q-gutter-sm cursor-pointer" @click="volverInicio">
+      <div class="row items-center q-gutter-sm">
         <q-avatar color="primary" text-color="white" icon="auto_awesome" size="32px" class="shadow-3" />
         <span class="text-weight-bold tracking-tight text-subtitle1" style="color: white;">ALMA BELLA</span>
       </div>

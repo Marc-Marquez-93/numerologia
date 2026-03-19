@@ -146,6 +146,48 @@ const eliminarUsuarioAdmin = (row) => {
     });
 };
 
+// --- CREACIÓN DE ADMINISTRADOR (NUEVO) ---
+const mostrarModalCrear = ref(false);
+const cargandoCrear = ref(false);
+const adminNuevo = ref({
+    nombre: '',
+    email: '',
+    password: ''
+});
+
+const abrirModalCrear = () => {
+    adminNuevo.value = { nombre: '', email: '', password: '' };
+    mostrarModalCrear.value = true;
+};
+
+const guardarNuevoAdmin = async () => {
+    if (!adminNuevo.value.nombre || !adminNuevo.value.email || !adminNuevo.value.password) {
+        return $q.notify({ type: 'warning', message: 'Todos los campos son obligatorios' });
+    }
+
+    try {
+        cargandoCrear.value = true;
+        const payload = {
+            nombre: adminNuevo.value.nombre,
+            email: adminNuevo.value.email,
+            password: adminNuevo.value.password,
+            rol: 'admin'
+        };
+
+        await axiosInstance.post('/usuario', payload);
+        
+        $q.notify({ type: 'positive', message: 'Administrador creado con éxito' });
+        mostrarModalCrear.value = false;
+        await cargarDataAdministrativa();
+    } catch (err) {
+        console.error(err);
+        const msg = err.response?.data?.msg || 'Error al crear administrador';
+        $q.notify({ type: 'negative', message: msg });
+    } finally {
+        cargandoCrear.value = false;
+    }
+};
+
 // --- EDICIÓN DE USUARIO ---
 const mostrarModalEditar = ref(false);
 const cargandoEdicion = ref(false);
@@ -224,6 +266,19 @@ const guardarCambiosUsuario = async () => {
         </div>
         
         <div class="row items-center q-gutter-x-md">
+            <!-- Botón Crear Nuevo Admin -->
+            <q-btn 
+              @click="abrirModalCrear" 
+              label="Crear Admin" 
+              color="moss" 
+              text-color="white" 
+              icon="person_add" 
+              rounded 
+              unelevated 
+              class="q-px-md text-weight-bold shadow-soft hover-scale" 
+              no-caps 
+            />
+
             <!-- Avatar del Admin -->
             <q-avatar color="primary" text-color="white" size="40px" class="shadow-soft border-moss">
               {{ usuarioStore.nombre ? usuarioStore.nombre.charAt(0).toUpperCase() : 'A' }}
@@ -335,6 +390,50 @@ const guardarCambiosUsuario = async () => {
             </q-table>
         </q-card>
     </div>
+
+    <!-- MODAL CREAR ADMINISTRADOR -->
+    <q-dialog v-model="mostrarModalCrear" persistent>
+        <q-card style="min-width: 400px; border-radius: 20px;" class="q-pa-md">
+            <q-card-section class="row items-center q-pb-none">
+                <div class="text-h6 text-moss text-weight-bold">Nuevo Administrador</div>
+                <q-space />
+                <q-btn icon="close" flat round dense v-close-popup />
+            </q-card-section>
+
+            <q-card-section class="q-pt-md q-gutter-y-md">
+                <div class="text-center q-mb-md">
+                    <q-avatar color="primary" text-color="dark" icon="person_add" size="60px" class="shadow-soft" />
+                </div>
+                <div>
+                    <div class="text-caption text-weight-bold text-moss q-mb-xs">Nombre Completo</div>
+                    <q-input v-model="adminNuevo.nombre" outlined dense color="primary" rounded placeholder="Ej. Alex Ferguson" />
+                </div>
+
+                <div>
+                    <div class="text-caption text-weight-bold text-moss q-mb-xs">Correo Institucional</div>
+                    <q-input v-model="adminNuevo.email" type="email" outlined dense color="primary" rounded placeholder="admin@almabella.com" />
+                </div>
+
+                <div>
+                    <div class="text-caption text-weight-bold text-moss q-mb-xs">Contraseña Temporal</div>
+                    <q-input v-model="adminNuevo.password" type="password" outlined dense color="primary" rounded placeholder="••••••••" />
+                </div>
+            </q-card-section>
+
+            <q-card-actions align="right" class="q-pt-lg">
+                <q-btn flat label="Cancelar" color="grey-7" v-close-popup rounded no-caps />
+                <q-btn 
+                    label="Registrar Administrador" 
+                    color="moss" 
+                    text-color="white" 
+                    @click="guardarNuevoAdmin" 
+                    :loading="cargandoCrear"
+                    rounded unelevated no-caps
+                    class="q-px-lg shadow-soft text-weight-bold"
+                />
+            </q-card-actions>
+        </q-card>
+    </q-dialog>
 
     <!-- MODAL EDITAR USUARIO -->
     <q-dialog v-model="mostrarModalEditar" persistent>

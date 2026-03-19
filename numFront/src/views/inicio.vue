@@ -102,7 +102,7 @@ async function registrarUsuario() {
     <header
       class="row justify-between items-center q-pa-lg max-width q-mx-auto relative-position z-top"
     >
-      <div class="row items-center q-gutter-sm cursor-pointer">
+      <div class="row items-center q-gutter-sm">
         <q-avatar
           color="primary"
           text-color="dark"

@@ -1,0 +1,30 @@
+/* Estilos Globales para ALMA BELLA */
+
+/* Desactivar selección de texto globalmente para una experiencia más de "App" */
+/* Se aplica a los contenedores principales para evitar el resaltado azul accidental */
+.numera-container, .dashboard-container, .admin-container, .admin-auth-container, .lectura-container, .pago-container {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+/* Permitir selección solo en campos de entrada y áreas de edición */
+input, textarea, [contenteditable="true"] {
+    user-select: text !important;
+    -webkit-user-select: text !important;
+}
+
+/* Transiciones suaves estándar (CSS puro) */
+.q-btn {
+    transition: transform 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease;
+}
+
+.q-btn:active {
+    transform: scale(0.95);
+    opacity: 0.9;
+}
+
+.hover-scale:hover {
+    transform: scale(1.05);
+}
