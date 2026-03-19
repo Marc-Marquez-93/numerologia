@@ -32,7 +32,7 @@ const volverInicio = () => {
     message: '¿Estás seguro de salir de tu dashboard espiritual?',
     cancel: { flat: true, color: 'grey-7', noCaps: true, label: 'Cancelar' },
     persistent: true,
-    ok: { color: 'moss', label: 'Sí, Salir', noCaps: true, textColor: 'white', unelevated: true }
+    ok: { color: 'moss', label: 'SÍ, SALIR', noCaps: false, textColor: 'white', unelevated: true }
   }).onOk(() => {
     router.push("/");
   });
@@ -44,7 +44,7 @@ const cerrarSesion = () => {
     message: '¿Estás seguro de que deseas cerrar tu sesión actual?',
     cancel: { flat: true, color: 'grey-7', noCaps: true, label: 'Cancelar' },
     persistent: true,
-    ok: { color: 'moss', label: 'Cerrar Sesión', noCaps: true, textColor: 'white', unelevated: true }
+    ok: { color: 'moss', label: 'CERRAR SESIÓN', noCaps: false, textColor: 'white', unelevated: true }
   }).onOk(() => {
     // Limpiamos ambas stores y redirigimos a login
     usuarioStore.$reset();
@@ -61,7 +61,7 @@ const eliminarUsuario = () => {
     persistent: true,
     ok: {
       color: 'moss',
-      label: 'Eliminar',
+      label: 'ELIMINAR',
       textColor: 'white',
       unelevated: true
     }
@@ -100,8 +100,8 @@ const eliminarUsuario = () => {
           <q-btn flat round color="negative" icon="delete_forever" @click="eliminarUsuario" title="Eliminar cuenta">
             <q-tooltip>Eliminar cuenta definitivamente</q-tooltip>
           </q-btn>
-          <q-btn flat round color="white" icon="home" @click="volverInicio" title="Inicio" />
-          <q-btn flat round color="white" icon="logout" @click="cerrarSesion" title="Cerrar sesión" />
+          <q-btn flat round color="primary" icon="home" @click="volverInicio" title="Inicio" />
+          <q-btn flat round color="primary" icon="logout" @click="cerrarSesion" title="Cerrar sesión" />
         </div>
       </div>
     </nav>

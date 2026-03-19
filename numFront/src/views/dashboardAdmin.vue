@@ -119,7 +119,7 @@ const volverInicio = () => {
         message: '¿Estás seguro de salir al inicio? Se cerrará la vista administrativa.',
         cancel: { flat: true, color: 'grey-7', noCaps: true, label: 'Cancelar' },
         persistent: true,
-        ok: { color: 'moss', label: 'Sí, Salir', noCaps: true, textColor: 'white', unelevated: true }
+        ok: { color: 'moss', label: 'SÍ, SALIR', noCaps: false, textColor: 'white', unelevated: true }
     }).onOk(() => {
         router.push('/');
     });
@@ -145,7 +145,7 @@ const eliminarUsuarioAdmin = (row) => {
         message: `¿Seguro que quiere eliminar al usuario ${row.nombre}? Perderá todas sus lecturas y pagos.`,
         cancel: { flat: true, color: 'grey-7', label: 'Volver' },
         persistent: true,
-    ok: { color: 'moss', label: 'Eliminar definitivamente', textColor: 'white', unelevated: true }
+    ok: { color: 'moss', label: 'ELIMINAR DEFINITIVAMENTE', textColor: 'white', unelevated: true }
     }).onOk(async () => {
         try {
             cargando.value = true;
@@ -299,7 +299,7 @@ const guardarCambiosUsuario = async () => {
             <q-avatar color="primary" text-color="white" size="40px" class="shadow-soft border-moss">
               {{ usuarioStore.nombre ? usuarioStore.nombre.charAt(0).toUpperCase() : 'A' }}
             </q-avatar>
-            <q-btn @click="volverInicio" round color="white" text-color="moss" icon="close" class="shadow-soft hover-scale" />
+            <q-btn @click="volverInicio" round color="primary" text-color="dark" icon="close" class="shadow-soft hover-scale" />
         </div>
     </div>
 
@@ -308,10 +308,10 @@ const guardarCambiosUsuario = async () => {
         <q-btn-toggle
             v-model="rolSeleccionado"
             toggle-color="primary"
-            text-color="moss"
+            text-color="dark"
             rounded unelevated
             class="shadow-soft"
-            style="background: white;"
+            style="background: #e9ede9;"
             :options="[
                 { label: 'Usuarios', value: 'user', icon: 'people' },
                 { label: 'Administradores', value: 'admin', icon: 'admin_panel_settings' }
