@@ -13,6 +13,12 @@ const authStore = useAuthStore();
 const $q = useQuasar();
 const { error } = useNotifications();
 
+// Definir colores de marca en Quasar
+import { setCssVar } from 'quasar';
+setCssVar('primary', '#13ec5b'); // Verde Neón Principal
+setCssVar('moss', '#2d4a34');    // Verde Musgo Oscuro
+setCssVar('secondary', '#3d2b1f'); // Tierra
+
 const todosUsuarios = ref([]);
 const cargando = ref(true);
 const filtro = ref('');
@@ -111,9 +117,9 @@ const volverInicio = () => {
     $q.dialog({
         title: 'Confirmar Salida',
         message: '¿Estás seguro de salir al inicio? Se cerrará la vista administrativa.',
-        cancel: true,
+        cancel: { flat: true, color: 'grey-7', noCaps: true, label: 'Cancelar' },
         persistent: true,
-        ok: { color: 'moss', label: 'Sí, Salir', noCaps: true }
+        ok: { color: 'moss', label: 'Sí, Salir', noCaps: true, unelevated: true }
     }).onOk(() => {
         router.push('/');
     });
@@ -137,9 +143,9 @@ const eliminarUsuarioAdmin = (row) => {
     $q.dialog({
         title: '¡Atención!',
         message: `¿Seguro que quiere eliminar al usuario ${row.nombre}? Perderá todas sus lecturas y pagos.`,
-        cancel: true,
+        cancel: { flat: true, color: 'grey-7', label: 'Volver' },
         persistent: true,
-        ok: { color: 'negative', label: 'Eliminar definitivamente' }
+        ok: { color: 'negative', label: 'Eliminar definitivamente', unelevated: true }
     }).onOk(async () => {
         try {
             cargando.value = true;

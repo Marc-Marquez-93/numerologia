@@ -6,10 +6,16 @@ import { useUsuarioStore } from '../stores/Usuario.js';
 import { useAuthStore } from '../stores/Auth.js';
 import axiosInstance from '../plugins/axios.js';
 
+import { setCssVar } from 'quasar';
 const router = useRouter();
 const $q = useQuasar();
 const usuarioStore = useUsuarioStore();
 const authStore = useAuthStore();
+
+// Definir colores de marca
+setCssVar('primary', '#13ec5b');
+setCssVar('moss', '#2d4a34');
+
 const tab = ref(router.currentRoute.value.path.includes('diaria') ? 'diaria' : 'principal');
 
 const navigateTo = (route) => {
@@ -24,9 +30,9 @@ const volverInicio = () => {
   $q.dialog({
     title: '¿Salir al Inicio?',
     message: '¿Estás seguro de salir de tu dashboard espiritual?',
-    cancel: true,
+    cancel: { flat: true, color: 'grey-7', noCaps: true, label: 'Cancelar' },
     persistent: true,
-    ok: { color: 'primary', label: 'Sí, Salir', noCaps: true }
+    ok: { color: 'primary', label: 'Sí, Salir', noCaps: true, textColor: 'dark', unelevated: true }
   }).onOk(() => {
     router.push("/");
   });
@@ -36,9 +42,9 @@ const cerrarSesion = () => {
   $q.dialog({
     title: 'Cerrar Sesión',
     message: '¿Estás seguro de que deseas cerrar tu sesión actual?',
-    cancel: true,
+    cancel: { flat: true, color: 'grey-7', noCaps: true, label: 'Cancelar' },
     persistent: true,
-    ok: { color: 'negative', label: 'Cerrar Sesión', noCaps: true }
+    ok: { color: 'negative', label: 'Cerrar Sesión', noCaps: true, unelevated: true }
   }).onOk(() => {
     // Limpiamos ambas stores y redirigimos a login
     usuarioStore.$reset();
@@ -51,11 +57,12 @@ const eliminarUsuario = () => {
   $q.dialog({
     title: 'Eliminar Cuenta',
     message: '¿Seguro que quiere eliminar usuario? Perderá todas sus lecturas y pagos.',
-    cancel: true,
+    cancel: { flat: true, color: 'grey-7', label: 'Cancelar' },
     persistent: true,
     ok: {
       color: 'negative',
-      label: 'Eliminar'
+      label: 'Eliminar',
+      unelevated: true
     }
   }).onOk(async () => {
     try {
