@@ -8,6 +8,7 @@ import Dashboard from "../views/Dashboard.vue"
 import DashboardLecturaPrincipal from "../views/DashboardLecturaPrincipal.vue"
 import LecturaDiaria from "../views/LecturaDiaria.vue"
 import Pago from "../views/Pago.vue"
+import PagoResultado from "../views/PagoResultado.vue"
 import { createRouter, createWebHashHistory } from "vue-router"
 
 const rutas = [
@@ -24,6 +25,7 @@ const rutas = [
       ]
     },
     { path: "/pago", component: Pago },
+    { path: "/pago-resultado", component: PagoResultado },
     { path: "/admin", redirect: "/login" }, 
     { path: "/loginAdmin", redirect: "/login" },
     { path: "/registrarAdmin", component: registrarAdmin },

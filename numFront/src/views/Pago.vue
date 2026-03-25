@@ -22,17 +22,17 @@ const procesarPago = async () => {
         cargando.value = true;
         
         const payload = {
-            usuario_email: emailForm.value,
-            metodo: metodoPago.value
+            usuario_email: emailForm.value
         };
 
-        const res = await axiosInstance.post('/pago', payload);
+        const res = await axiosInstance.post('/pago/create-preference', payload);
         
-        success("¡Pago procesado!", "Tu mensualidad está activa.");
-        
-        // Regresamos al login para que regenere el estado al entrar de nuevo,
-        // o podríamos redirigir al dashboard si ya tenemos el token válido y estado actualizado.
-        router.push('/login');
+        if (res.data.init_point) {
+            // Redirigir al checkout de Mercado Pago
+            window.location.href = res.data.init_point;
+        } else {
+            error("Error de pago", "No se pudo generar el enlace de pago.");
+        }
         
     } catch(err) {
         const msj = err.response?.data?.msg || "Hubo un error al procesar tu pago.";
@@ -76,9 +76,9 @@ const procesarPago = async () => {
             <div class="q-mt-lg q-pa-md bg-grey-2" style="border-radius: 12px; border: 1px solid #e0e0e0;">
                 <div class="row justify-between items-center q-mb-sm">
                     <span class="text-weight-bold text-dark">Plan Mensual</span>
-                    <span class="text-primary text-weight-bold text-subtitle1">$9.99</span>
+                    <span class="text-primary text-weight-bold text-subtitle1">$20.000 COP</span>
                 </div>
-                <div class="text-caption text-grey-6 text-italic">Cobro automático cada mes. Puedes cancelar cuando quieras.</div>
+                <div class="text-caption text-grey-6 text-italic">Acceso total por 30 días. Renovación manual o automática según disponibilidad.</div>
             </div>
 
             <q-btn type="submit" :loading="cargando" color="primary" text-color="dark" label="Pagar" class="full-width q-mt-xl text-weight-bold shadow-soft" rounded unelevated size="lg" no-caps>
