@@ -80,3 +80,31 @@ El proyecto sigue una estructura de **Monorepo** con una clara separación entre
 
 ---
 *Análisis realizado por Antigravity 🛸*
+
+
+3261302134
+TESTUSER8406603171911622172
+U26pAN0lr1
+302134
+
+----
+5254 1336 7440 3564
+123
+11/30
+
+---
+
+4013 5406 8274 6260
+123
+11/30
+
+---
+
+3743 781877 55283
+1234
+11/30
+
+---
+4915 1120 5524 6507
+123
+11/30
