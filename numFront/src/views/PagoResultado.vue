@@ -88,9 +88,6 @@ const confirmarPago = async () => {
     info("Procesando", "Tu pago fue recibido. Puede tardar unos minutos en activarse. Revisa tu dashboard pronto.");
 };
 
-const irAlDashboard = () => {
-    router.push('/dashboard');
-};
 
 const irAlLogin = () => {
     router.push('/login');
@@ -109,14 +106,14 @@ const irAlLogin = () => {
                 Tu conexión con los astros ha sido renovada con éxito. Ya puedes disfrutar de todos los beneficios de Alma Bella.
             </p>
             <q-btn 
-                label="Ir a mi Dashboard" 
+                label="Ingresar ahora" 
                 color="primary" 
                 text-color="dark" 
                 rounded 
                 unelevated 
                 class="full-width text-weight-bold shadow-soft" 
                 size="lg"
-                @click="irAlDashboard"
+                @click="irAlLogin"
             />
         </div>
         
