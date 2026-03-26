@@ -13,13 +13,12 @@ mongo/                          ← Raíz del monorepo
 ├── .env                        ← Variables de entorno (compartido)
 ├── GEMINI.md                   ← Este archivo
 ├── mongo/                      ← 🔌 BACKEND (Node.js + Express + MongoDB)
-│   ├── app.js                  ← Entry point, monta rutas y sirve el frontend estático
-│   ├── cron-runner.js          ← Worker de cron (lecturas diarias a las 7:00 AM)
+│   ├── app.js                  ← Entry point, monta rutas y activa el Cron Helper
 │   ├── controllers/            ← Lógica de negocio (usuario, lectura, pago)
 │   ├── routes/                 ← Rutas REST protegidas con JWT
 │   ├── models/                 ← Esquemas Mongoose (Usuario, Lectura, Pago)
 │   ├── middlewares/            ← JWT validation, campo validación
-│   ├── helpers/                ← Utilidades (email, validación, JWT generation)
+│   ├── helpers/                ← Utilidades (email, cron-helper, JWT generation)
 │   └── database/               ← Conexión MongoDB Atlas
 └── numFront/                   ← 🎨 FRONTEND (Vue 3 + Vite + Quasar + Pinia)
     ├── src/
@@ -67,6 +66,7 @@ mongo/                          ← Raíz del monorepo
 | `POST` | `/lectura/diaria/:email` | Generar lectura diaria (Gemini AI) |
 | `GET` | `/lectura/usuario/:email` | Obtener todas las lecturas de un usuario |
 | `POST` | `/pago` | Registrar pago/suscripción |
+| `POST` | `/pago/confirmar` | Confirmación manual de pago (Mercado Pago API) |
 | `GET` | `/pago` | Listar todos los pagos |
 | `GET` | `/pago/estado/:email` | Verificar estado de suscripción |
 
@@ -77,12 +77,13 @@ mongo/                          ← Raíz del monorepo
 - Dos tipos: Lectura Principal (única) y Lectura Diaria (recurrente)
 - El prompt mystiocamente interpreta los números de la fecha
 
-### Cron Job (`cron-runner.js`)
+### Cron Job (Integrado en `app.js`)
 
-- Se ejecuta diariamente a las **7:00 AM** (America/Bogota)
-- Itera sobre usuarios con suscripción activa y les genera lectura diaria
-- Usa `CRON_SECRET_TOKEN` para bypass del middleware JWT
-- Se despliega como **Background Worker** en Render
+- Se inicializa automáticamente al arrancar el servidor mediante el `cron-helper.js`.
+- Se ejecuta diariamente a las **7:00 AM** (America/Bogota).
+- Itera sobre usuarios con suscripción activa y genera sus lecturas diarias.
+- Usa `CRON_SECRET_TOKEN` para bypass del middleware JWT.
+- **Robustez**: Implementa reintentos y esperas de 1s para optimizar el uso de la IA.
 
 ### Seguridad
 
@@ -161,7 +162,7 @@ CRON_SECRET_TOKEN=token_secreto_cron
 ADMIN_SECRET_KEY=clave_maestra_admin
 
 # Server
-PORT=4500
+PORT=3000
 ```
 
 ---
@@ -173,9 +174,9 @@ PORT=4500
 - **Start**: `cd mongo && node app.js`
 - El backend sirve el `dist/` del frontend como archivos estáticos
 
-### Background Worker
-- **Start**: `cd mongo && node cron-runner.js`
-- Ejecuta el cron de lecturas diarias
+### Background Worker (Opcional)
+- **Start**: `cd mongo && node app.js`
+- Puede ejecutarse como redundancia o proceso separado para tareas pesadas.
 
 ---
 
@@ -198,7 +199,7 @@ npm run dev          # Vite dev server en :5173
 ## 🚀 Hoja de Ruta (Roadmap)
 
 ### Fase 1: Estabilización y UX (Corto Plazo)
-- [ ] **Pasarela de Pagos**: Integrar Stripe o PayPal para automatizar cobros
+- [x] **Pasarela de Pagos**: Integración con Mercado Pago (Suscripción Manual)
 - [ ] **Historial de Lecturas**: Diario místico con todas las lecturas pasadas
 - [x] **Validaciones Robustas**: Mensajes de error claros en español
 - [x] **Spinner de Registro**: Feedback visual durante el registro
@@ -216,4 +217,4 @@ npm run dev          # Vite dev server en :5173
 
 ---
 
-*Generado por Antigravity 🛸 — Última actualización: Marzo 2026*
+*Generado por Antigravity 🛸 — Última actualización: Marzo 2026 (Fix: Cron & Pagos)*

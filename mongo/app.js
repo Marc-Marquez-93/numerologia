@@ -7,6 +7,7 @@ import { conectarMongo } from "./database/cnx-mongo.js"
 import usuarioRoute from "./routes/usuario.js"
 import pagoRoute from "./routes/pago.js"
 import lecturaRoute from "./routes/lectura.js"
+import { iniciarCronLecturasDiarias } from "./helpers/cron-helper.js"
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -31,4 +32,7 @@ app.get(/.*/, (req, res) => {
 
 app.listen(process.env.PORT || 3000,()=>{
     console.log(`Servidor escuchando en el puerto ${process.env.PORT || 3000}`);
+    
+    // 🔥 Iniciamos el Cron Helper para lecturas diarias
+    iniciarCronLecturasDiarias();
 })
