@@ -27,8 +27,8 @@ router.post("/create-preference", [
   validarCampos,
 ], crearPreferencia);
 
+// Sin validarJWT: el payment_id de MP es la prueba de autenticidad
 router.post("/confirmar", [
-  validarJWT,
   validarCampos,
 ], confirmarPagoManual);
 

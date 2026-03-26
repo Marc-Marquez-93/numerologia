@@ -108,11 +108,15 @@ const recibirWebhook = async (req, res) => {
   }
 };
 
-// Nueva función para confirmar desde el frontend
+// Nueva función para confirmar desde el frontend (NO requiere JWT)
 const confirmarPagoManual = async (req, res) => {
   try {
-    const { payment_id, preference_id } = req.body;
-    console.log(`🔍 Confirmación manual solicitada: Payment ${payment_id}, Preference ${preference_id}`);
+    const { payment_id, preference_id, external_reference } = req.body;
+    console.log(`\n🔍 ========= CONFIRMACIÓN MANUAL =========`);
+    console.log(`Payment ID: ${payment_id}`);
+    console.log(`Preference ID: ${preference_id}`);
+    console.log(`External Ref: ${external_reference}`);
+    console.log(`==========================================\n`);
 
     if (!payment_id) {
       return res.status(400).json({ msg: "Falta el payment_id" });
@@ -121,8 +125,10 @@ const confirmarPagoManual = async (req, res) => {
     const resultado = await procesarEstadoPago(payment_id);
     
     if (resultado) {
+      console.log(`✅ Confirmación manual exitosa para payment ${payment_id}`);
       res.json({ msg: "Pago procesado con éxito", status: "approved" });
     } else {
+      console.warn(`⚠️ Confirmación manual: pago ${payment_id} no está aprobado aún`);
       res.status(400).json({ msg: "El pago no está aprobado o no se encontró", status: "pending" });
     }
   } catch (error) {
@@ -131,10 +137,11 @@ const confirmarPagoManual = async (req, res) => {
   }
 };
 
-// Función interna reutilizable para procesar el estado
+// Función interna reutilizable para procesar el estado (ATÓMICA)
 const procesarEstadoPago = async (paymentId) => {
     try {
-        console.log(`⏳ Procesando estado del pago: ${paymentId}`);
+        console.log(`\n⏳ ========= PROCESANDO PAGO =========`);
+        console.log(`Payment ID recibido: ${paymentId}`);
         
         const response = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
             headers: {
@@ -143,48 +150,85 @@ const procesarEstadoPago = async (paymentId) => {
         });
 
         if (!response.ok) {
-            console.error(`❌ Error al consultar MP: ${response.status}`);
+            const errorText = await response.text();
+            console.error(`❌ Error al consultar MP API: HTTP ${response.status}`);
+            console.error(`Respuesta: ${errorText}`);
             return false;
         }
 
         const data = await response.json();
-        console.log(`Estado en MP para ${paymentId}: ${data.status}`);
+        console.log(`📦 Respuesta de MP API:`);
+        console.log(`   Status: ${data.status}`);
+        console.log(`   Preference ID (MP): ${data.preference_id}`);
+        console.log(`   External Reference: ${data.external_reference}`);
+        console.log(`   Payment ID: ${data.id}`);
 
         if (data.status === "approved") {
             const email = data.external_reference;
-            const preference_id = data.preference_id;
+            const mpPreferenceId = data.preference_id;
 
-            // Intentamos buscar por preference_id primero, que es más seguro
-            let pagoExistente = await Pago.findOne({ mp_preference_id: preference_id });
-            
-            if (!pagoExistente) {
-                console.warn(`⚠️ No se encontró registro con preference_id ${preference_id}, buscando por email...`);
-                pagoExistente = await Pago.findOne({ usuario_email: email, status: "pending" }).sort({ fecha_pago: -1 });
-            }
+            // Log de comparación para debug
+            const pagosEnBD = await Pago.find({ usuario_email: email });
+            console.log(`\n🔎 Pagos encontrados en BD para ${email}: ${pagosEnBD.length}`);
+            pagosEnBD.forEach((p, i) => {
+                console.log(`   [${i}] ID: ${p._id}, status: ${p.status}, mp_preference_id: "${p.mp_preference_id}"`);
+            });
+            console.log(`   MP nos dice preference_id: "${mpPreferenceId}"`);
 
-            if (pagoExistente) {
-                if (pagoExistente.status === "approved") {
-                    console.log("ℹ️ El pago ya estaba marcado como aprobado.");
-                    return true;
-                }
+            // Búsqueda 1: por preference_id exacto
+            let filtro = { mp_preference_id: mpPreferenceId };
+            let pagoActualizado = await Pago.findOneAndUpdate(
+                filtro,
+                {
+                    $set: {
+                        status: "approved",
+                        mp_payment_id: String(paymentId),
+                        vencimiento: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+                    }
+                },
+                { new: true }
+            );
 
-                pagoExistente.status = "approved";
-                pagoExistente.mp_payment_id = paymentId;
-                
-                const vencimiento = new Date();
-                vencimiento.setDate(vencimiento.getDate() + 30);
-                pagoExistente.vencimiento = vencimiento;
-                
-                await pagoExistente.save();
-                console.log(`✅ Pago aprovado y guardado para ${email}`);
+            if (pagoActualizado) {
+                console.log(`✅ Pago actualizado por preference_id: ${pagoActualizado._id}`);
+                console.log(`   Nuevo status: ${pagoActualizado.status}`);
+                console.log(`   Vencimiento: ${pagoActualizado.vencimiento}`);
                 return true;
-            } else {
-                console.error(`❌ No se encontró el registro de pago pendiente para ${email}`);
             }
+
+            // Búsqueda 2: fallback por email + status pending (el más reciente)
+            console.warn(`⚠️ No match por preference_id, intentando fallback por email + pending...`);
+            filtro = { usuario_email: email, status: "pending" };
+            pagoActualizado = await Pago.findOneAndUpdate(
+                filtro,
+                {
+                    $set: {
+                        status: "approved",
+                        mp_payment_id: String(paymentId),
+                        mp_preference_id: mpPreferenceId,
+                        vencimiento: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+                    }
+                },
+                { new: true, sort: { fecha_pago: -1 } }
+            );
+
+            if (pagoActualizado) {
+                console.log(`✅ Pago actualizado por fallback email+pending: ${pagoActualizado._id}`);
+                console.log(`   Nuevo status: ${pagoActualizado.status}`);
+                console.log(`   Vencimiento: ${pagoActualizado.vencimiento}`);
+                return true;
+            }
+
+            console.error(`❌ No se encontró NINGÚN registro de pago para actualizar`);
+            console.error(`   Email: ${email}, MP Preference: ${mpPreferenceId}`);
+        } else {
+            console.log(`ℹ️ El pago ${paymentId} tiene status "${data.status}" en MP (no es approved)`);
         }
+        
+        console.log(`========= FIN PROCESAMIENTO =========\n`);
         return false;
     } catch (error) {
-        console.error("❌ Error en procesarEstadoPago:", error);
+        console.error("❌ Error crítico en procesarEstadoPago:", error.message);
         return false;
     }
 };

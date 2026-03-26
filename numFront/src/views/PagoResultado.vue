@@ -2,7 +2,7 @@
 import { onMounted, ref, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useNotifications } from '../composables/useNotify.js';
-import { postData } from '../services/apiCliente.js';
+import axios from 'axios';
 
 const route = useRoute();
 const router = useRouter();
@@ -12,7 +12,6 @@ const cargando = ref(false);
 const verificado = ref(false);
 
 // Extraemos los parámetros de la URL
-// Nota: Vue Router puede devolver un array si el parámetro está repetido
 const getQueryParam = (param) => {
     const val = route.query[param];
     return Array.isArray(val) ? val[0] : val;
@@ -28,11 +27,15 @@ const statusUrl = computed(() => {
 
 const paymentId = getQueryParam('payment_id') || getQueryParam('collection_id');
 const preferenceId = getQueryParam('preference_id');
+const externalReference = getQueryParam('external_reference');
+
+console.log("🏁 PagoResultado cargado. Params extraídos:");
+console.log("   statusUrl:", statusUrl.value);
+console.log("   paymentId:", paymentId);
+console.log("   preferenceId:", preferenceId);
+console.log("   externalReference:", externalReference);
 
 onMounted(async () => {
-    console.log("🏁 PagoResultado montado. Status URL:", statusUrl.value);
-    console.log("IDS:", { paymentId, preferenceId });
-
     if (statusUrl.value === 'success' && paymentId) {
         await confirmarPago();
     } else if (statusUrl.value === 'failure') {
@@ -43,31 +46,46 @@ onMounted(async () => {
 });
 
 const confirmarPago = async () => {
-    try {
-        cargando.value = true;
-        console.log("⏳ Solicitando confirmación al servidor...");
-        
-        // Llamamos al nuevo endpoint de confirmación manual
-        const res = await postData('/pago/confirmar', {
-            payment_id: paymentId,
-            preference_id: preferenceId
-        });
+    cargando.value = true;
+    console.log("⏳ Enviando confirmación al backend...");
 
-        console.log("✅ Respuesta del servidor:", res);
-        
-        if (res.status === 'approved') {
-            verificado.value = true;
-            success("¡Pago Verificado!", "Tu suscripción ha sido activada correctamente.");
-        } else {
-            info("En proceso", "El pago se recibió pero aún se está procesando en el sistema.");
+    // Usamos axios directamente SIN el interceptor JWT
+    // porque el usuario puede no tener token activo al volver de MP
+    const baseUrl = '/api';
+
+    // Reintentamos hasta 3 veces con espera entre intentos
+    for (let intento = 1; intento <= 3; intento++) {
+        try {
+            console.log(`Intento ${intento}/3...`);
+
+            const res = await axios.post(`${baseUrl}/pago/confirmar`, {
+                payment_id: paymentId,
+                preference_id: preferenceId,
+                external_reference: externalReference
+            });
+
+            console.log("✅ Respuesta del servidor:", res.data);
+            
+            if (res.data.status === 'approved') {
+                verificado.value = true;
+                cargando.value = false;
+                success("¡Pago Verificado!", "Tu suscripción ha sido activada. ¡Disfruta de Alma Bella!");
+                return;
+            }
+        } catch (err) {
+            console.warn(`⚠️ Intento ${intento} falló:`, err.response?.data?.msg || err.message);
+            
+            if (intento < 3) {
+                // Esperar 2 segundos antes de reintentar
+                console.log("⏳ Esperando 2s antes de reintentar...");
+                await new Promise(r => setTimeout(r, 2000));
+            }
         }
-    } catch (err) {
-        console.error("❌ Error al confirmar pago:", err);
-        // No mostramos error crítico porque el webhook podría activarlo después
-        info("Sincronizando", "Estamos terminando de procesar tu pago. Puedes revisar tu dashboard en unos minutos.");
-    } finally {
-        cargando.value = false;
     }
+
+    // Si después de 3 intentos no se pudo confirmar
+    cargando.value = false;
+    info("Procesando", "Tu pago fue recibido. Puede tardar unos minutos en activarse. Revisa tu dashboard pronto.");
 };
 
 const irAlDashboard = () => {
