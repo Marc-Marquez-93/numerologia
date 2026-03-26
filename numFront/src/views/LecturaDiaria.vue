@@ -123,7 +123,7 @@ const formatDate = (dateString) => {
 
                     <q-card class="bg-transparent" flat>
                         <q-card-section class="q-px-xl q-pb-xl q-pt-none">
-                            <div class="bg-moss-light q-pa-lg border-radius-lg fuente-mistica text-moss" 
+                            <div class="bg-white q-pa-lg border-radius-lg fuente-mistica text-moss" 
                                 style="line-height: 1.8; text-align: left;"
                                 v-html="formatearTextoIA(lectura.contenido)">
                             </div>

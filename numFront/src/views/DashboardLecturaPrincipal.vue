@@ -68,7 +68,7 @@ onMounted(() => {
               </h1>
             </div>
 
-            <div class="q-mx-auto bg-moss-light q-pa-md border-radius-lg fuente-mistica text-moss"
+            <div class="q-mx-auto bg-white q-pa-md border-radius-lg fuente-mistica text-moss"
               style="max-width: 650px; text-align: left; white-space: pre-line;" v-html="contenidoIA">
             </div>
 
