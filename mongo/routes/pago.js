@@ -26,6 +26,11 @@ router.post("/create-preference", [
   validarCampos,
 ], crearPreferencia);
 
+router.post("/confirmar", [
+  validarJWT,
+  validarCampos,
+], confirmarPagoManual);
+
 router.post("/webhook", recibirWebhook);
 
 router.get("/estado/:email", [

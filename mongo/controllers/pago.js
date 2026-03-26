@@ -35,6 +35,7 @@ const getByUsuario = async (req, res) => {
 const crearPreferencia = async (req, res) => {
   try {
     const { usuario_email } = req.body;
+    console.log(`🛒 Creando preferencia para: ${usuario_email}`);
 
     const usuario = await Usuario.findOne({ email: usuario_email });
     if (!usuario) {
@@ -64,6 +65,7 @@ const crearPreferencia = async (req, res) => {
     };
 
     const response = await preference.create({ body });
+    console.log(`✅ Preferencia creada: ${response.id}`);
 
     const nuevoPago = new Pago({
       usuario_email,
@@ -79,58 +81,112 @@ const crearPreferencia = async (req, res) => {
       init_point: response.init_point,
     });
   } catch (error) {
-    console.error(error);
+    console.error("❌ Error al crear preferencia:", error);
     res.status(500).json({ msg: "Error al crear la preferencia de pago", error });
   }
 };
 
 const recibirWebhook = async (req, res) => {
   try {
-    const { query } = req;
-    const topic = query.topic || query.type;
+    console.log("🔔 Webhook recibido de Mercado Pago");
+    const { query, body } = req;
+    
+    // Mercado Pago puede enviar datos en query o en body dependiendo de la versión/tipo
+    const id = query.id || body.data?.id || body.id;
+    const topic = query.topic || query.type || body.type || body.topic;
 
-    if (topic === "payment") {
-      const paymentId = query.id || query["data.id"];
-      
-      // Aquí podrías usar el SDK para obtener el detalle del pago si fuera necesario
-      // Pero para simplificar, si MP nos manda el webhook, actualizamos.
-      // En un entorno real, validarías el estado del pago con el ID.
-      
-      // Buscamos el pago por external_reference (email) o preference_id si lo tuviéramos
-      // Pero MP suele mandar el ID del pago. 
-      // Para este MVP "Simple", vamos a confiar en la notificación básica o simplemente responder OK.
-      // Lo ideal es consultar MP:
-      
-      const response = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
-        headers: {
-          Authorization: `Bearer ${process.env.MERCADOPAGO_ACCESS_TOKEN}`,
-        },
-      });
-      const data = await response.json();
+    console.log(`Topic: ${topic}, ID: ${id}`);
 
-      if (data.status === "approved") {
-        const email = data.external_reference;
-        const pagoExistente = await Pago.findOne({ mp_preference_id: data.preference_id });
-
-        if (pagoExistente) {
-          pagoExistente.status = "approved";
-          pagoExistente.mp_payment_id = paymentId;
-          
-          const vencimiento = new Date();
-          vencimiento.setDate(vencimiento.getDate() + 30);
-          pagoExistente.vencimiento = vencimiento;
-          
-          await pagoExistente.save();
-          console.log(`Pago aprobado para ${email}`);
-        }
-      }
+    if (topic === "payment" || topic === "payment.updated") {
+       await procesarEstadoPago(id);
     }
 
-    res.sendStatus(200);
+    res.status(200).send("OK");
   } catch (error) {
-    console.error("Error en webhook:", error);
-    res.sendStatus(500);
+    console.error("❌ Error en webhook:", error);
+    res.status(500).json({ error: error.message });
   }
+};
+
+// Nueva función para confirmar desde el frontend
+const confirmarPagoManual = async (req, res) => {
+  try {
+    const { payment_id, preference_id } = req.body;
+    console.log(`🔍 Confirmación manual solicitada: Payment ${payment_id}, Preference ${preference_id}`);
+
+    if (!payment_id) {
+      return res.status(400).json({ msg: "Falta el payment_id" });
+    }
+
+    const resultado = await procesarEstadoPago(payment_id);
+    
+    if (resultado) {
+      res.json({ msg: "Pago procesado con éxito", status: "approved" });
+    } else {
+      res.status(400).json({ msg: "El pago no está aprobado o no se encontró", status: "pending" });
+    }
+  } catch (error) {
+    console.error("❌ Error en confirmación manual:", error);
+    res.status(500).json({ msg: "Error interno", error: error.message });
+  }
+};
+
+// Función interna reutilizable para procesar el estado
+const procesarEstadoPago = async (paymentId) => {
+    try {
+        console.log(`⏳ Procesando estado del pago: ${paymentId}`);
+        
+        const response = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
+            headers: {
+                Authorization: `Bearer ${process.env.MERCADOPAGO_ACCESS_TOKEN}`,
+            },
+        });
+
+        if (!response.ok) {
+            console.error(`❌ Error al consultar MP: ${response.status}`);
+            return false;
+        }
+
+        const data = await response.json();
+        console.log(`Estado en MP para ${paymentId}: ${data.status}`);
+
+        if (data.status === "approved") {
+            const email = data.external_reference;
+            const preference_id = data.preference_id;
+
+            // Intentamos buscar por preference_id primero, que es más seguro
+            let pagoExistente = await Pago.findOne({ mp_preference_id: preference_id });
+            
+            if (!pagoExistente) {
+                console.warn(`⚠️ No se encontró registro con preference_id ${preference_id}, buscando por email...`);
+                pagoExistente = await Pago.findOne({ usuario_email: email, status: "pending" }).sort({ fecha_pago: -1 });
+            }
+
+            if (pagoExistente) {
+                if (pagoExistente.status === "approved") {
+                    console.log("ℹ️ El pago ya estaba marcado como aprobado.");
+                    return true;
+                }
+
+                pagoExistente.status = "approved";
+                pagoExistente.mp_payment_id = paymentId;
+                
+                const vencimiento = new Date();
+                vencimiento.setDate(vencimiento.getDate() + 30);
+                pagoExistente.vencimiento = vencimiento;
+                
+                await pagoExistente.save();
+                console.log(`✅ Pago aprovado y guardado para ${email}`);
+                return true;
+            } else {
+                console.error(`❌ No se encontró el registro de pago pendiente para ${email}`);
+            }
+        }
+        return false;
+    } catch (error) {
+        console.error("❌ Error en procesarEstadoPago:", error);
+        return false;
+    }
 };
 
 const getEstado = async (req, res) => {
@@ -162,4 +218,4 @@ const getEstado = async (req, res) => {
   }
 };
 
-export { getPago, getByUsuario, crearPreferencia, recibirWebhook, getEstado };
+export { getPago, getByUsuario, crearPreferencia, recibirWebhook, confirmarPagoManual, getEstado };
