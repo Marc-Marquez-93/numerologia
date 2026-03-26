@@ -4,6 +4,7 @@ import {
   getByUsuario,
   crearPreferencia,
   recibirWebhook,
+  confirmarPagoManual,
   getEstado,
 } from "../controllers/pago.js";
 import { validarCampos } from "../middlewares/validar-campos.js";

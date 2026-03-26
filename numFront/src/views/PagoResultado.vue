@@ -1,3 +1,4 @@
+<script setup>
 import { onMounted, ref, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useNotifications } from '../composables/useNotify.js';
@@ -76,6 +77,7 @@ const irAlDashboard = () => {
 const irAlLogin = () => {
     router.push('/login');
 };
+</script>
 
 <template>
   <div class="row window-height window-width flex-center bg-forest-dark non-selectable">
