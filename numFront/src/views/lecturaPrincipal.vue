@@ -46,7 +46,7 @@ const generarLectura = async () => {
 };
 
 const activarMensajeDiario = async () => {
-  router.push('/login');
+  router.push('/pago');
 };
 
 const volverInicio = () => {

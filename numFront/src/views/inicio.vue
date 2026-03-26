@@ -5,12 +5,14 @@ import { postData } from "../services/apiCliente.js";
 import { setCssVar } from "quasar";
 import { useNotifications } from "../composables/useNotify.js";
 import { useUsuarioStore } from "../stores/Usuario.js";
+import { useAuthStore } from "../stores/Auth.js";
 
 setCssVar("primary", "#13ec5b");
 
 const router = useRouter();
 const { success, error } = useNotifications();
 const usuarioStore = useUsuarioStore();
+const authStore = useAuthStore();
 
 const form = ref({
   nombre: "",
@@ -74,6 +76,12 @@ async function registrarUsuario() {
 
     const res = await postData("/usuario", payload);
     usuarioStore.email = res.usuario.email;
+    usuarioStore.nombre = res.usuario.nombre; // Guardamos también el nombre
+    
+    // Guardamos el token para "Auto-Login"
+    if (res.token) {
+      authStore.token = res.token;
+    }
 
     success("¡Registro exitoso!", "Preparando tu lectura numerológica...");
     router.push("/lecturaPrincipal");

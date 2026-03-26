@@ -248,8 +248,12 @@ const postUsuario = async (req, res) => {
     const usuarioResponse = usuario.toObject();
     delete usuarioResponse.password;
 
+    // Generamos el token para que el usuario quede logueado de una vez
+    const token = await generarJWT(usuario._id);
+
     res.json({
       usuario: usuarioResponse,
+      token,
       msg: `Usuario ${Nrol} creado correctamente`
     });
 
