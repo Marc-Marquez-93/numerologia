@@ -20,13 +20,19 @@ const mostrarPassword = ref(false);
 const cargando = ref(false);
 
 const loginAdministrador = async () => {
-    if (!form.value.email || !form.value.password) {
+    const emailTrim = form.value.email.trim();
+    const passwordTrim = form.value.password.trim();
+
+    if (!emailTrim || !passwordTrim) {
         return error("Error", "Ambos campos son obligatorios");
     }
 
     cargando.value = true;
     try {
-        const res = await postData('/usuario/login', form.value);
+        const res = await postData('/usuario/login', {
+            email: emailTrim,
+            password: passwordTrim
+        });
         
         // Guardamos el token en authStore
         authStore.token = res.token;
