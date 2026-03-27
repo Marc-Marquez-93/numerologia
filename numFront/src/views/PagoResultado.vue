@@ -36,7 +36,8 @@ console.log("   preferenceId:", preferenceId);
 console.log("   externalReference:", externalReference);
 
 onMounted(async () => {
-    if (statusUrl.value === 'success' && paymentId) {
+    if ((statusUrl.value === 'success' || statusUrl.value === 'failure') && paymentId) {
+        // Siempre confirmar con el backend para que guarde el status real de MP
         await confirmarPago();
     } else if (statusUrl.value === 'failure') {
         error("Pago Fallido", "Hubo un problema con tu pago. Por favor intenta de nuevo.");
@@ -71,12 +72,23 @@ const confirmarPago = async () => {
                 cargando.value = false;
                 success("¡Pago Verificado!", "Tu suscripción ha sido activada. ¡Disfruta de Alma Bella!");
                 return;
+            } else {
+                // El backend procesó pero no es approved (rejected, etc.)
+                cargando.value = false;
+                error("Pago no aprobado", res.data.msg || "Tu pago no fue aprobado por Mercado Pago.");
+                return;
             }
         } catch (err) {
             console.warn(`⚠️ Intento ${intento} falló:`, err.response?.data?.msg || err.message);
             
+            // Si el backend respondió con 400, el pago fue procesado pero no está approved
+            if (err.response?.status === 400) {
+                cargando.value = false;
+                error("Pago no aprobado", err.response?.data?.msg || "Tu pago no fue aprobado.");
+                return;
+            }
+
             if (intento < 3) {
-                // Esperar 2 segundos antes de reintentar
                 console.log("⏳ Esperando 2s antes de reintentar...");
                 await new Promise(r => setTimeout(r, 2000));
             }
