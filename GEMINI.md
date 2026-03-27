@@ -149,7 +149,6 @@ SECRETORPRIVATEKEY=tu_secreto_jwt
 API_KEY=key1
 API_KEY2=key2
 API_KEY3=key3
-# ...hasta API_KEY10
 
 # Email (Nodemailer)
 EMAIL_USER=correo@gmail.com

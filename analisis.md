@@ -67,7 +67,7 @@ El proyecto sigue una estructura de **Monorepo** con una clara separación entre
 | Área | Observación |
 |---|---|
 | **IA** | El código usa `gemini-3-flash-preview`. |
-| **Seguridad** | Doble factor rudiementario con `adminCode` y rutas protegidas por JWT. |
+| **Seguridad** | Doble factor rudimentario con `adminCode` y rutas protegidas por JWT. |
 | **UX** | Estética premium con Quasar; refinado con bloqueo de selección y confirmaciones de navegación. |
 | **Mantenibilidad** | Lógica centralizada en servicios y composables. |
 

@@ -20,14 +20,16 @@ setCssVar('moss', '#2d4a34');    // Verde Musgo Oscuro
 setCssVar('secondary', '#3d2b1f'); // Tierra
 
 const todosUsuarios = ref([]);
+const todosPagos = ref([]);
 const cargando = ref(true);
 const filtro = ref('');
-const rolSeleccionado = ref('user');
+const tabSeleccionada = ref('user');
+const periodoTotal = ref('Mensual');
 
 // Filtrado por rol
 const usuarios = computed(() => {
     return todosUsuarios.value.filter(u => {
-        if (rolSeleccionado.value === 'user') {
+        if (tabSeleccionada.value === 'user') {
             return u.rol !== 'admin' && u.rol !== 1;
         } else {
             return u.rol === 'admin' || u.rol === 1;
@@ -36,10 +38,51 @@ const usuarios = computed(() => {
 });
 
 const tituloTabla = computed(() => {
-    return rolSeleccionado.value === 'user' ? 'Usuarios Registrados' : 'Administradores';
+    return tabSeleccionada.value === 'user' ? 'Usuarios Registrados' : 'Administradores';
 });
 
-// Definición de las columnas de Quasar Table
+// Cálculos de pagos
+const totalIngresos = computed(() => {
+    let total = 0;
+    const ahora = new Date();
+    todosPagos.value.forEach(p => {
+        if (p.status !== 'approved') return;
+        
+        const fechaPago = new Date(p.fecha_pago);
+        let incluir = false;
+        
+        switch (periodoTotal.value) {
+            case 'Diario':
+                incluir = fechaPago.toDateString() === ahora.toDateString();
+                break;
+            case 'Semanal':
+                const unSemanaAtras = new Date();
+                unSemanaAtras.setDate(ahora.getDate() - 7);
+                incluir = fechaPago >= unSemanaAtras;
+                break;
+            case 'Mensual':
+                incluir = fechaPago.getMonth() === ahora.getMonth() && fechaPago.getFullYear() === ahora.getFullYear();
+                break;
+            case 'Anual':
+                incluir = fechaPago.getFullYear() === ahora.getFullYear();
+                break;
+        }
+        
+        if (incluir) {
+            total += p.monto;
+        }
+    });
+    return total;
+});
+
+const formatedTotalIngresos = computed(() => {
+    return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(totalIngresos.value);
+});
+
+const totalUsuariosActivos = computed(() => {
+    return todosUsuarios.value.filter(u => u.estadoPago === 'Activo').length;
+});
+
 const columnas = [
   { name: 'nombres', align: 'left', label: 'Nombre Completo', field: 'nombre', sortable: true },
   { name: 'correo', align: 'left', label: 'Correo Electrónico', field: 'email', sortable: true },
@@ -48,6 +91,25 @@ const columnas = [
   { name: 'estadoCuenta', align: 'center', label: 'Acceso', field: 'estado', sortable: true },
   { name: 'acciones', align: 'center', label: 'Acciones', field: 'acciones' }
 ];
+
+const columnasPagos = [
+  { name: 'usuario', align: 'left', label: 'Usuario', field: 'usuario_email', sortable: true },
+  { name: 'fecha', align: 'left', label: 'Fecha de Pago', field: row => formatDateTime(row.fecha_pago), sortable: true },
+  { name: 'estado', align: 'center', label: 'Estado', field: 'status', sortable: true },
+  { name: 'transaccion', align: 'center', label: 'ID de Transacción', field: row => row.mp_payment_id || 'N/A', sortable: true },
+  { name: 'monto', align: 'right', label: 'Monto', field: row => formatearMoneda(row.monto), sortable: true }
+];
+
+const formatearMoneda = (monto) => {
+    return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(monto);
+};
+
+const formatDateTime = (dateString) => {
+    if (!dateString) return 'Desconocido';
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return 'Inválida';
+    return date.toLocaleString('es-ES', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute:'2-digit' });
+};
 
 const formatDate = (dateString) => {
     if (!dateString) return 'Desconocido';
@@ -65,13 +127,13 @@ const cargarDataAdministrativa = async () => {
 
         // 2. Cargar todos los pagos para cruzarlos
         const resPagos = await axiosInstance.get('/pago');
-        const pagosData = resPagos.data.pagos || [];
+        todosPagos.value = resPagos.data.pagos || [];
 
         const ahora = new Date();
 
         // 3. Cruzar info: Map para saber el estado de cada usuario
         todosUsuarios.value = usuariosData.map(user => {
-            const pagosUsuario = pagosData.filter(p => p.usuario_email === user.email);
+            const pagosUsuario = todosPagos.value.filter(p => p.usuario_email === user.email);
             let estadoSuscripcion = 'Sin Pagos';
 
             if (pagosUsuario.length > 0) {
@@ -304,24 +366,25 @@ const guardarCambiosUsuario = async () => {
         </div>
     </div>
 
-    <!-- Toggle Usuarios / Admins -->
+    <!-- Toggle Usuarios / Admins / Pagos -->
     <div class="full-width max-width q-mb-lg flex justify-center">
         <q-btn-toggle
-            v-model="rolSeleccionado"
+            v-model="tabSeleccionada"
             toggle-color="primary"
             text-color="dark"
             rounded unelevated
             class="shadow-soft"
             style="background: #e9ede9;"
             :options="[
-                { label: 'Usuarios', value: 'user', icon: 'people' },
-                { label: 'Administradores', value: 'admin', icon: 'admin_panel_settings' }
+                { label: 'USUARIOS', value: 'user', icon: 'people' },
+                { label: 'ADMINISTRADORES', value: 'admin', icon: 'admin_panel_settings' },
+                { label: 'PAGOS', value: 'pagos', icon: 'payments' }
             ]"
         />
     </div>
 
     <!-- Main Content -->
-    <div class="full-width max-width q-px-sm">
+    <div class="full-width max-width q-px-sm" v-if="tabSeleccionada !== 'pagos'">
         <q-card class="admin-card glass-card shadow-soft border-radius-xl" flat>
             <q-table
                 :title="tituloTabla"
@@ -397,6 +460,80 @@ const guardarCambiosUsuario = async () => {
                             title="Eliminar usuario"
                             @click="eliminarUsuarioAdmin(props.row)"
                         />
+                    </q-td>
+                </template>
+
+                <!-- Loading State -->
+                <template v-slot:loading>
+                    <q-inner-loading showing color="primary" />
+                </template>
+            </q-table>
+        </q-card>
+    </div>
+
+    <!-- Vista de Pagos -->
+    <div class="full-width max-width q-px-sm" v-if="tabSeleccionada === 'pagos'">
+        <!-- Cards Superiores -->
+        <div class="row q-col-gutter-lg q-mb-lg">
+            <!-- Card Total -->
+            <div class="col-12 col-md-6">
+                <q-card class="glass-card shadow-soft border-radius-xl q-pa-md height-100" flat>
+                    <div class="row items-center q-mb-md">
+                        <q-avatar color="primary" text-color="dark" icon="account_balance_wallet" size="md" class="q-mr-sm" rounded />
+                        <div class="text-weight-bold text-moss">Total</div>
+                    </div>
+                    <div class="text-h3 text-weight-bolder text-dark q-mb-md">
+                        {{ formatedTotalIngresos }}
+                    </div>
+                    <q-select 
+                        v-model="periodoTotal" 
+                        :options="['Diario', 'Semanal', 'Mensual', 'Anual']" 
+                        outlined dense color="primary" rounded bg-color="white"
+                        label="Select"
+                    />
+                </q-card>
+            </div>
+            
+            <!-- Card Usuarios Activos -->
+            <div class="col-12 col-md-6">
+                <q-card class="glass-card shadow-soft border-radius-xl q-pa-md height-100" flat>
+                    <div class="row items-center q-mb-md">
+                        <q-avatar color="primary" text-color="dark" icon="computer" size="md" class="q-mr-sm" rounded />
+                        <div class="text-weight-bold text-moss">Usuarios Activos</div>
+                    </div>
+                    <div class="text-h3 text-weight-bolder text-dark q-mb-md">
+                        {{ totalUsuariosActivos }}
+                    </div>
+                </q-card>
+            </div>
+        </div>
+
+        <!-- Tabla de Historial de Pagos -->
+        <q-card class="admin-card glass-card shadow-soft border-radius-xl" flat>
+            <q-table
+                title="Historial de Pagos"
+                :rows="todosPagos"
+                :columns="columnasPagos"
+                row-key="_id"
+                :loading="cargando"
+                class="bg-transparent"
+                table-header-class="text-moss text-weight-bold bg-moss-light"
+                separator="horizontal"
+                flat
+                :pagination="{ rowsPerPage: 10 }"
+            >
+                <!-- Personalización de la columna Estado -->
+                <template v-slot:body-cell-estado="props">
+                    <q-td :props="props">
+                        <q-chip 
+                            :color="props.row.status === 'approved' ? 'positive' : (props.row.status === 'pending' ? 'warning' : 'negative')"
+                            text-color="white"
+                            class="text-weight-bold text-uppercase"
+                            size="sm"
+                            icon="fiber_manual_record"
+                        >
+                            {{ props.row.status === 'approved' ? 'Success' : (props.row.status === 'pending' ? 'Pending' : 'Failed') }}
+                        </q-chip>
                     </q-td>
                 </template>
 
@@ -581,6 +718,10 @@ const guardarCambiosUsuario = async () => {
     background: rgba(255, 255, 255, 0.8);
     backdrop-filter: blur(12px);
     border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.height-100 {
+    height: 100%;
 }
 
 .hover-scale { transition: transform 0.2s; }
