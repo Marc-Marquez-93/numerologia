@@ -1,7 +1,6 @@
 <script setup>
 import { onMounted, ref, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
-import { useNotifications } from '../composables/useNotify.js';
 import { useUsuarioStore } from '../stores/Usuario.js';
 import { useAuthStore } from '../stores/Auth.js';
 import axios from 'axios';
@@ -9,7 +8,6 @@ import axiosInstance from '../plugins/axios.js';
 
 const route = useRoute();
 const router = useRouter();
-const { success, error, info } = useNotifications();
 const usuarioStore = useUsuarioStore();
 const authStore = useAuthStore();
 
@@ -44,11 +42,6 @@ console.log("   externalReference:", externalReference);
 onMounted(async () => {
     if ((statusUrl.value === 'success' || statusUrl.value === 'failure') && paymentId) {
         await confirmarPago();
-    } else if (statusUrl.value === 'failure') {
-        pagoFallido.value = true;
-        error("Pago Fallido", "Hubo un problema con tu pago. Por favor intenta de nuevo.");
-    } else if (statusUrl.value === 'pending') {
-        info("Pago Pendiente", "Tu pago está en proceso. Te avisaremos cuando se confirme.");
     }
 });
 
@@ -73,7 +66,6 @@ const confirmarPago = async () => {
             if (res.data.status === 'approved') {
                 verificado.value = true;
                 cargando.value = false;
-                success("¡Pago Verificado!", "Tu suscripción ha sido activada. ¡Disfruta de Alma Bella!");
                 
                 // Intentar generar lectura diaria automáticamente
                 await generarLecturaDiaria();
@@ -81,7 +73,6 @@ const confirmarPago = async () => {
             } else {
                 cargando.value = false;
                 pagoFallido.value = true;
-                error("Pago no aprobado", res.data.msg || "Tu pago no fue aprobado por Mercado Pago.");
                 return;
             }
         } catch (err) {
@@ -90,7 +81,6 @@ const confirmarPago = async () => {
             if (err.response?.status === 400) {
                 cargando.value = false;
                 pagoFallido.value = true;
-                error("Pago no aprobado", err.response?.data?.msg || "Tu pago no fue aprobado.");
                 return;
             }
 
@@ -102,7 +92,6 @@ const confirmarPago = async () => {
     }
 
     cargando.value = false;
-    info("Procesando", "Tu pago fue recibido. Puede tardar unos minutos en activarse. Revisa tu dashboard pronto.");
 };
 
 const generarLecturaDiaria = async () => {

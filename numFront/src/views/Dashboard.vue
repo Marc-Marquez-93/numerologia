@@ -118,7 +118,7 @@ const eliminarUsuario = () => {
             :icon="esPremium ? 'workspace_premium' : 'person'"
             style="letter-spacing: 0.05em;"
           >
-            {{ esPremium ? 'PREMIUM' : 'FREE' }}
+            {{ esPremium ? 'PREMIUM' : 'GRATUITA' }}
           </q-chip>
           <q-avatar color="primary" text-color="white" size="34px" class="shadow-2">
             {{ usuarioStore.nombre ? usuarioStore.nombre.charAt(0).toUpperCase() : 'U' }}
