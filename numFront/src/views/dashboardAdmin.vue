@@ -23,6 +23,7 @@ const todosUsuarios = ref([]);
 const todosPagos = ref([]);
 const cargando = ref(true);
 const filtro = ref('');
+const filtroPagos = ref('');
 const tabSeleccionada = ref('user');
 const periodoTotal = ref('Mensual');
 
@@ -175,15 +176,18 @@ onMounted(() => {
     cargarDataAdministrativa();
 });
 
-const volverInicio = () => {
+const cerrarSesion = () => {
     $q.dialog({
-        title: 'Confirmar Salida',
-        message: '¿Estás seguro de salir al inicio? Se cerrará la vista administrativa.',
+        title: 'Cerrar Sesión',
+        message: '¿Estás seguro de cerrar sesión? Se cerrará la vista administrativa.',
         cancel: { flat: true, color: 'grey-7', noCaps: true, label: 'Cancelar' },
         persistent: true,
-        ok: { color: 'primary', label: 'SÍ, SALIR', noCaps: false, textColor: 'dark', unelevated: true }
+        ok: { color: 'primary', label: 'SÍ, CERRAR SESIÓN', noCaps: false, textColor: 'dark', unelevated: true }
     }).onOk(() => {
-        router.push('/');
+        authStore.token = '';
+        usuarioStore.nombre = '';
+        usuarioStore.email = '';
+        router.push('/login');
     });
 }
 
@@ -225,6 +229,7 @@ const eliminarUsuarioAdmin = (row) => {
 // --- CREACIÓN DE ADMINISTRADOR (NUEVO) ---
 const mostrarModalCrear = ref(false);
 const mostrarPasswordNuevo = ref(false);
+const mostrarAdminCode = ref(false);
 const cargandoCrear = ref(false);
 const adminNuevo = ref({
     nombre: '',
@@ -239,29 +244,43 @@ const abrirModalCrear = () => {
 };
 
 const guardarNuevoAdmin = async () => {
-    if (!adminNuevo.value.nombre || !adminNuevo.value.email || !adminNuevo.value.password || !adminNuevo.value.adminCode) {
-        return $q.notify({ type: 'warning', message: 'Todos los campos son obligatorios' });
+    const { nombre, email, password, adminCode } = adminNuevo.value;
+
+    if (!nombre || !nombre.trim()) {
+        return $q.notify({ type: 'warning', message: 'El nombre completo es obligatorio', icon: 'person_off' });
+    }
+    if (!email || !email.trim()) {
+        return $q.notify({ type: 'warning', message: 'El correo electrónico es obligatorio', icon: 'mail' });
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+        return $q.notify({ type: 'warning', message: 'Ingresa un correo electrónico válido', icon: 'mail' });
+    }
+    if (!password || password.length < 6) {
+        return $q.notify({ type: 'warning', message: 'La contraseña debe tener al menos 6 caracteres', icon: 'lock' });
+    }
+    if (!adminCode || !adminCode.trim()) {
+        return $q.notify({ type: 'warning', message: 'El código secreto de administrador es obligatorio', icon: 'key' });
     }
 
     try {
         cargandoCrear.value = true;
         const payload = {
-            nombre: adminNuevo.value.nombre,
-            email: adminNuevo.value.email,
-            password: adminNuevo.value.password,
-            adminCode: adminNuevo.value.adminCode,
+            nombre: nombre.trim(),
+            email: email.trim(),
+            password,
+            adminCode: adminCode.trim(),
             rol: 1
         };
 
         await axiosInstance.post('/usuario', payload);
         
-        $q.notify({ type: 'positive', message: 'Administrador creado con éxito' });
+        $q.notify({ type: 'positive', message: `Administrador "${nombre.trim()}" creado con éxito`, icon: 'check_circle' });
         mostrarModalCrear.value = false;
         await cargarDataAdministrativa();
     } catch (err) {
         console.error(err);
-        const msg = err.response?.data?.msg || 'Error al crear administrador';
-        $q.notify({ type: 'negative', message: msg });
+        const msg = err.response?.data?.msg || err.response?.data?.errors?.[0]?.msg || 'Error desconocido al crear administrador';
+        $q.notify({ type: 'negative', message: msg, icon: 'error', caption: `HTTP ${err.response?.status || 'N/A'}` });
     } finally {
         cargandoCrear.value = false;
     }
@@ -362,7 +381,7 @@ const guardarCambiosUsuario = async () => {
             <q-avatar color="primary" text-color="white" size="40px" class="shadow-soft border-moss">
               {{ usuarioStore.nombre ? usuarioStore.nombre.charAt(0).toUpperCase() : 'A' }}
             </q-avatar>
-            <q-btn @click="volverInicio" round color="primary" text-color="dark" icon="close" class="shadow-soft hover-scale" />
+            <q-btn @click="cerrarSesion" round color="primary" text-color="dark" icon="logout" class="shadow-soft hover-scale" />
         </div>
     </div>
 
@@ -516,12 +535,22 @@ const guardarCambiosUsuario = async () => {
                 :columns="columnasPagos"
                 row-key="_id"
                 :loading="cargando"
+                :filter="filtroPagos"
                 class="bg-transparent"
                 table-header-class="text-moss text-weight-bold bg-moss-light"
                 separator="horizontal"
                 flat
                 :pagination="{ rowsPerPage: 10 }"
             >
+                <!-- Buscador Pagos -->
+                <template v-slot:top-right>
+                    <q-input borderless dense debounce="300" v-model="filtroPagos" placeholder="Buscar por usuario...">
+                        <template v-slot:append>
+                            <q-icon name="search" color="moss" />
+                        </template>
+                    </q-input>
+                </template>
+
                 <!-- Personalización de la columna Estado -->
                 <template v-slot:body-cell-estado="props">
                     <q-td :props="props">
@@ -592,16 +621,23 @@ const guardarCambiosUsuario = async () => {
                     <div class="text-caption text-weight-bold text-moss q-mb-xs">Código Secreto Admin</div>
                     <q-input 
                         v-model="adminNuevo.adminCode" 
-                        type="password" 
+                        :type="mostrarAdminCode ? 'text' : 'password'" 
                         outlined 
                         dense 
                         color="secondary" 
                         rounded 
-                        placeholder="Requerido para el Backend"
+                        placeholder="Codigo secreto"
                         bg-color="green-1"
                     >
                         <template v-slot:prepend>
                             <q-icon name="key" color="green-9" />
+                        </template>
+                        <template v-slot:append>
+                            <q-icon 
+                                :name="mostrarAdminCode ? 'visibility_off' : 'visibility'" 
+                                class="cursor-pointer" 
+                                @click="mostrarAdminCode = !mostrarAdminCode" 
+                            />
                         </template>
                     </q-input>
                 </div>
