@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
 import { useUsuarioStore } from '../stores/Usuario.js';
@@ -16,27 +16,44 @@ const authStore = useAuthStore();
 setCssVar('primary', '#13ec5b');
 setCssVar('moss', '#2d4a34');
 
-const tab = ref(router.currentRoute.value.path.includes('diaria') ? 'diaria' : 'principal');
+const esPremium = ref(false);
+const cargandoEstado = ref(true);
+
+// Detectar la tab activa por la ruta
+const detectarTab = () => {
+  const path = router.currentRoute.value.path;
+  if (path.includes('pagos')) return 'pagos';
+  if (path.includes('diaria')) return 'diaria';
+  return 'principal';
+};
+
+const tab = ref(detectarTab());
 
 const navigateTo = (route) => {
   if (route === 'principal') {
     router.push('/dashboard/lectura-principal');
-  } else {
+  } else if (route === 'diaria') {
     router.push('/dashboard/lectura-diaria');
+  } else if (route === 'pagos') {
+    router.push('/dashboard/pagos');
   }
 };
 
-const volverInicio = () => {
-  $q.dialog({
-    title: '¿Salir al Inicio?',
-    message: '¿Estás seguro de salir de tu dashboard espiritual?',
-    cancel: { flat: true, color: 'grey-7', noCaps: true, label: 'Cancelar' },
-    persistent: true,
-    ok: { color: 'primary', label: 'SÍ, SALIR', noCaps: false, textColor: 'dark', unelevated: true }
-  }).onOk(() => {
-    router.push("/");
-  });
+const verificarEstadoPago = async () => {
+  if (!usuarioStore.email) return;
+  try {
+    const res = await axiosInstance.get(`/pago/estado/${usuarioStore.email}`);
+    esPremium.value = res.data.estado === 'activo';
+  } catch {
+    esPremium.value = false;
+  } finally {
+    cargandoEstado.value = false;
+  }
 };
+
+onMounted(() => {
+  verificarEstadoPago();
+});
 
 const cerrarSesion = () => {
   $q.dialog({
@@ -46,7 +63,6 @@ const cerrarSesion = () => {
     persistent: true,
     ok: { color: 'primary', label: 'CERRAR SESIÓN', noCaps: false, textColor: 'dark', unelevated: true }
   }).onOk(() => {
-    // Limpiamos ambas stores y redirigimos a login
     usuarioStore.$reset();
     authStore.token = '';
     router.push("/login");
@@ -69,7 +85,9 @@ const eliminarUsuario = () => {
     try {
       if (usuarioStore.email) {
         await axiosInstance.delete(`/usuario/${usuarioStore.email}`);
-        cerrarSesion();
+        usuarioStore.$reset();
+        authStore.token = '';
+        router.push("/login");
       }
     } catch (err) {
       console.error("Error al eliminar el usuario", err);
@@ -88,9 +106,20 @@ const eliminarUsuario = () => {
         <span class="text-weight-bold tracking-tight text-subtitle1" style="color: white;">ALMA BELLA</span>
       </div>
       <div class="row items-center q-gutter-x-md">
-        <!-- Avatar y Nombre del Usuario -->
+        <!-- Avatar, Nombre y Badge Premium/Free -->
         <div class="row items-center q-gutter-x-sm q-hide-xs">
           <span class="text-white text-weight-medium">{{ usuarioStore.nombre }}</span>
+          <q-chip 
+            v-if="!cargandoEstado"
+            :color="esPremium ? 'amber-8' : 'blue-grey-6'" 
+            text-color="white" 
+            size="sm" 
+            class="text-weight-bold text-uppercase"
+            :icon="esPremium ? 'workspace_premium' : 'person'"
+            style="letter-spacing: 0.05em;"
+          >
+            {{ esPremium ? 'PREMIUM' : 'FREE' }}
+          </q-chip>
           <q-avatar color="primary" text-color="white" size="34px" class="shadow-2">
             {{ usuarioStore.nombre ? usuarioStore.nombre.charAt(0).toUpperCase() : 'U' }}
           </q-avatar>
@@ -100,7 +129,6 @@ const eliminarUsuario = () => {
           <q-btn flat round color="negative" icon="delete_forever" @click="eliminarUsuario" title="Eliminar cuenta">
             <q-tooltip>Eliminar cuenta definitivamente</q-tooltip>
           </q-btn>
-          <q-btn flat round color="primary" icon="home" @click="volverInicio" title="Inicio" />
           <q-btn flat round color="primary" icon="logout" @click="cerrarSesion" title="Cerrar sesión" />
         </div>
       </div>
@@ -117,14 +145,15 @@ const eliminarUsuario = () => {
         align="center"
         narrow-indicator
         @update:model-value="navigateTo"
-        style="width: 100%; max-width: 600px;"
+        style="width: 100%; max-width: 700px;"
       >
         <q-tab name="principal" label="Lectura Principal" icon="auto_graph" class="q-px-lg font-tab" />
         <q-tab name="diaria" label="Lectura Diaria" icon="calendar_today" class="q-px-lg font-tab" />
+        <q-tab name="pagos" label="Pagos" icon="receipt_long" class="q-px-lg font-tab" />
       </q-tabs>
     </div>
 
-    <!-- Contenido Dinámico (Lectura Principal o Lectura Diaria) -->
+    <!-- Contenido Dinámico -->
     <div class="dashboard-content">
       <router-view v-slot="{ Component }">
         <transition name="fade" mode="out-in">
@@ -138,13 +167,12 @@ const eliminarUsuario = () => {
 <style scoped>
 .dashboard-container {
   min-height: 100vh;
-  background-color: #f8f6f0; /* Fondo soft del proyecto */
+  background-color: #f8f6f0;
   position: relative;
   overflow-x: hidden;
 }
 
 .custom-nav {
-  /* Fondo con aspecto de cristal sobre forest dark */
   background: rgba(30, 60, 48, 0.95) !important;
   backdrop-filter: blur(8px);
 }

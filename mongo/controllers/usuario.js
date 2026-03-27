@@ -259,7 +259,11 @@ const postUsuario = async (req, res) => {
 
   } catch (error) {
     console.log(error);
-    res.status(400).json({ error });
+    // Manejar error de email duplicado (MongoDB E11000)
+    if (error.code === 11000) {
+      return res.status(400).json({ msg: "Ya existe un usuario registrado con ese correo electrónico" });
+    }
+    res.status(400).json({ msg: "Error al crear el usuario", error });
   }
 };
 
