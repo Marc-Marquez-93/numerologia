@@ -11,6 +11,8 @@ LeclercCasado16
 APRO
 Pago aprobado
 123456789
+---
+
 OTHE
 Rechazado por error general
 123456789
