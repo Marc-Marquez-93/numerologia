@@ -89,7 +89,7 @@ const getStatusColor = (status) => {
                         <div class="text-weight-bolder text-h6 text-dark">{{ formatearMoneda(pago.monto) }}</div>
                     </div>
                 </div>
-                <div class="q-mt-sm">
+                <div class="q-mt-sm flex justify-between items-center">
                     <q-chip 
                         :color="getStatusColor(pago.status)" 
                         text-color="white" 
@@ -99,6 +99,9 @@ const getStatusColor = (status) => {
                     >
                         {{ getStatusLabel(pago.status) }}
                     </q-chip>
+                    <div class="text-caption text-grey-6">
+                        ID: <span class="text-moss text-weight-bold">{{ pago.mp_payment_id || 'N/A' }}</span>
+                    </div>
                 </div>
             </q-card>
         </div>
