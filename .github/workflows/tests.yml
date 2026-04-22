@@ -1,6 +1,5 @@
 name: Node.js CI - Numerología
 
-# 1. ¿Cuándo se activa? Cuando subes código o haces un Pull Request
 on:
   push:
     branches: [ "main" ]
@@ -9,28 +8,23 @@ on:
 
 jobs:
   build:
-    # 2. ¿En qué sistema corre? En la versión más reciente de Linux (Ubuntu)
     runs-on: ubuntu-latest
 
     steps:
-      # 3. Descarga tu código del repositorio
       - uses: actions/checkout@v4
 
-      # 4. Configura Node.js en el servidor de GitHub
       - name: Use Node.js 20.x
         uses: actions/setup-node@v4
         with:
           node-version: 20.x
-          cache: 'npm'
+          # Eliminamos la línea de cache: 'npm' para evitar el error
 
-      # 5. Entra al Backend, instala y prueba
       - name: Pruebas del Backend (Mongo)
         run: |
           cd mongo
           npm install
           npm test
 
-      # 6. Entra al Frontend, instala y prueba
       - name: Pruebas del Frontend (NumFront)
         run: |
           cd numFront
